@@ -14,3 +14,200 @@ This platform provides a unified workspace for citizens to interact conversation
 3. **Conversational Agent Stream (SSE)**: Streams text messages and structured UI cards word-by-word from the FastAPI proxy using browser-native `ReadableStream` APIs.
 4. **Automated OCR Polling**: Periodically requests document OCR scanning statuses every 2.5 seconds using TanStack Query and automatically halts polling once all files are verified.
 6. **A11y Floor**: Standard focus rings, contrast ratios exceeding WCAG AA limits, and layout height stability.
+
+
+## GenAI Layer
+
+The GenAI layer is a multi-agent system built with LangGraph that takes a
+citizen's natural-language request, identifies the correct government agency
+and service, retrieves live requirements from the agency's official website,
+and generates step-by-step application guidance — with human-in-the-loop
+clarification when a request is ambiguous.
+
+### Architecture
+
+```
+Citizen Query
+     │
+     ▼
+Orchestrator Agent (CA)
+     │  parses intent, routes to the next agent, pauses for clarification
+     │  via LangGraph interrupt() when the request is ambiguous
+     ▼
+Discovery Agent
+     │  maps the request to a curated directory of verified, scrapable
+     │  government endpoints
+     ▼
+Regulation Agent (RA)
+     │  navigates the target government page (Playwright or HTTP tools,
+     │  depending on whether the page requires JS rendering)
+     │  extracts agency info, regulations, required documents, fees, and
+     │  distinguishes downloadable forms from online application portals
+     ▼
+   ┌─────────────────────┬──────────────────────────┐
+   ▼                      ▼
+Guidance Agent         Portal Guidance Agent
+(downloadable form     (online application portal —
+ cases: reads any       provides self-service
+ manual PDF + RA's      instructions rather than
+ regulations, produces  attempting automated
+ structured step-by-    submission)
+ step guidance)
+   └─────────────────────┴──────────────────────────┘
+                          │
+                          ▼
+                 final_response returned to citizen
+```
+
+Every agent returns control to the Orchestrator after running, which decides
+the next step based on what's present in shared state. Worker agents never
+route directly to each other.
+
+### Agents
+
+- **Orchestrator (CA)** — intent parsing and routing supervisor. Uses
+  LangGraph's `interrupt()`/`Command(resume=...)` to pause execution and ask
+  the citizen a clarifying question when a request is ambiguous, then
+  resumes the same graph run with their answer.
+- **Discovery Agent** — matches a citizen's request to a known, pre-verified
+  government service in a curated directory (chosen over open-ended live web
+  search for reliability).
+- **Regulation Agent (RA)** — the retrieval agent. Navigates the target
+  government page using a small set of read-only tools
+  (`navigate_to_page`, `find_links_matching`, `get_page_text`,
+  `verify_downloadable_file`), and returns a structured result: agency name,
+  source URL, regulations text, required documents, fees, processing time,
+  and separated `form_pdfs` / `manual_pdfs`. Every field has a safe default,
+  so partial or failed extractions degrade gracefully instead of crashing
+  the pipeline.
+- **Guidance Agent** — for downloadable-form cases. Reads any manual/guide
+  PDF RA found, combines it with RA's scraped regulations, and produces
+  structured, numbered step-by-step guidance for completing the
+  application. Filters corrupted non-Unicode text that some legacy
+  government PDFs produce for Sinhala/Tamil content before it reaches the
+  LLM, and can render its output in English, Sinhala, or Tamil.
+- **Portal Guidance Agent** — for services that require applying directly
+  through an online government portal rather than a downloadable form.
+  Gives the citizen clear self-service instructions and the portal link.
+  Agents never submit applications on a citizen's behalf — this is a
+  deliberate trust and safety boundary, not a missing feature.
+
+### Design decisions worth knowing
+
+- **Curated service directory over live web search.** Discovery matches
+  requests against a small, manually verified set of government endpoints
+  rather than searching the open web, prioritizing demo/production
+  reliability over open-ended coverage. The architecture supports extending
+  this to live search later.
+- **No automated form submission.** RA and all downstream agents are
+  read-only with respect to government systems — they retrieve and guide,
+  they never act as the citizen.
+- **Model standardization.** All tool-calling agents run on
+  `llama-3.3-70b-versatile` via Groq, chosen after repeated tool-calling
+  instability with `gpt-oss` model variants across multiple providers.
+
+### API
+
+FastAPI endpoints wrap the compiled LangGraph pipeline:
+
+- `POST /query` — submit a new citizen request.
+  ```json
+  { "query": "I need a National Identity Card", "thread_id": "<session-id>", "language": "en" }
+  ```
+  Returns either `final_response` (completed guidance) or
+  `needs_clarification` + `clarification_question` if the orchestrator needs
+  more information.
+
+- `POST /resume` — answer a pending clarification question for an existing
+  session.
+  ```json
+  { "answer": "<citizen's answer>", "thread_id": "<same session-id>" }
+  ```
+
+- `GET /health` — liveness check.
+
+Session continuity (including pause/resume for clarification) is handled by
+a LangGraph checkpointer keyed on `thread_id` — every request in the same
+conversation must reuse the same `thread_id`.
+
+### Setting up the GenAI layer
+
+**1. Prerequisites**
+- Python 3.11+ (project developed against 3.13)
+- A Groq API key
+
+**2. Clone and enter the GenAI directory**
+```bash
+cd GenAI
+```
+
+**3. Create the environment and install dependencies with `uv`**
+
+This project is developed and managed with [`uv`](https://docs.astral.sh/uv/).
+
+```bash
+uv sync
+```
+
+This creates a `.venv` and installs everything from `pyproject.toml` /
+`uv.lock`. If you need to add the Playwright browser binaries (only
+required if `pyproject.toml` doesn't already trigger this via a
+post-install hook):
+```bash
+uv run playwright install chromium
+```
+
+If `pyproject.toml`/`uv.lock` isn't present or up to date, add the core
+dependencies directly:
+```bash
+uv add langgraph langchain langchain-groq langchain-core \
+    fastapi uvicorn httpx beautifulsoup4 lxml pypdf playwright python-dotenv
+
+uv run playwright install chromium
+```
+
+To activate the environment manually (e.g. for ad-hoc scripts outside
+`uv run`):
+```bash
+# Windows
+.venv\Scripts\activate
+
+# macOS/Linux
+source .venv/bin/activate
+```
+
+**5. Configure environment variables**
+
+Create a `.env` file in the `GenAI` directory:
+```env
+GROQ_API_KEY=your_key_here
+```
+
+**6. Run the API server**
+```bash
+uv run uvicorn api.main:app --port 8000
+```
+
+> **Windows note:** Playwright launches a browser subprocess, which requires
+> the `ProactorEventLoop` on Windows. If you see a `NotImplementedError` on
+> startup or on the first request involving Playwright, ensure
+> `asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())`
+> is set at the top of `api/main.py` before any other imports, and run
+> uvicorn without `--reload` while testing this.
+
+**7. Verify it's running**
+```bash
+curl http://localhost:8000/health
+```
+
+**8. Send a test request**
+```bash
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "I need a National Identity Card", "thread_id": "test-1", "language": "en"}'
+```
+
+A first-time request against an uncached service can take up to 60-100+
+seconds, since RA performs live navigation and extraction against the real
+government site. Subsequent requests for the same service are faster if a
+response cache is enabled.
