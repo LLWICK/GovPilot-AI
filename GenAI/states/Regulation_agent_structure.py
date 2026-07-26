@@ -24,10 +24,13 @@ class RAOutput(BaseModel):
     # status is what the orchestrator/CA actually route and respond on —
     # this is the field that was missing and caused the fallback crash
     retrieval_status: Literal["success", "partial", "not_found", "error"] = "partial"
-
+    
     discovered_agency: str = Field(default="", description="Name of the government agency found")
     source_url: str = Field(default="", description="Exact URL where requirements were found")
+    portal_url: str = Field(default="", description="If there is any online portal for you to register")
     pdf_urls: list[str] = Field(default_factory=list)
+    form_pdfs: list[str] = Field(default_factory=list)
+    manual_pdfs: list[str] = Field(default_factory=list)
     regulations: list[dict] = Field(default_factory=list)
     required_documents: list[DocumentRequirement] = Field(default_factory=list)
     fees: Optional[FeeStructure] = Field(default=None)

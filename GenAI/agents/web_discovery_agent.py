@@ -13,53 +13,59 @@ from dotenv import load_dotenv
 from states.agent_state import GovPilotState
 from langchain.agents import create_agent
 from tools.bs4_scrapper import search_government_site
-from prompts.web_discovery_prompt import DISCOVERY_SYSTEM_PROMPT
-from states.web_discovery_structure import DiscoveryResult
-from langchain_core.output_parsers import JsonOutputParser
+from prompts.web_discovery_prompt import DISCOVERY_SYSTEM_PROMPT, CLASSIFY_PROMPT
+from states.web_discovery_structure import DiscoveryResult, DiscoveredPage
 
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_openrouter import ChatOpenRouter
+from data.agency_directory import FORM_DIRECTORY
+from utills.loggers import get_logger
 
 load_dotenv()
 
-llm = ChatGroq(model="llama-3.3-70b-versatile")
+logger = get_logger("discovery_agent")
+
+
+
+llm = ChatGroq(model="openai/gpt-oss-120b") 
 
 
 async def discovery_agent(state: GovPilotState) -> GovPilotState:
+    logger.info("executing the web discovery agent.....")
+    query = state["messages"][-1].content
 
-    print("executing the web discovery agent.....")
+    directory_keys = "\n".join(f"- {k}" for k in FORM_DIRECTORY.keys())
+    prompt = CLASSIFY_PROMPT.format(directory_keys=directory_keys, query=query)
 
-    DISCOVERY_TOOLS = [search_government_site]
+    response = await llm.ainvoke([{"role": "user", "content": prompt}])
+    matched_key = response.content.strip().lower()
+    logger.info("Matched Service: %s", matched_key)
 
-    service_info = state['parsed_intent']
+    if matched_key not in FORM_DIRECTORY:
+        logger.warning("Key not found !")
+        return {
+            "web_discovery_agent_output": DiscoveryResult(
+                status="not_found",
+                best_match=None,
+                alternatives=[],
+                search_query_used=query,
+            ),
+            "final_response":"Sorry, This service is still not implemented!"
+        }
 
-    info = state['messages'][-1].content
-    
-    discovery_agent = create_agent(
-    model=llm,
-    tools=DISCOVERY_TOOLS,
-    system_prompt=DISCOVERY_SYSTEM_PROMPT,
-   
-)
-    
-
-    result = await discovery_agent.ainvoke({
-            "messages": [{
-                "role": "user",
-                "content": (
-                    f"Find the government page for: {info}"
-                ),
-            }]
-        })
-    final_text = result["messages"][-1].content
-
-    parsed = JsonOutputParser().parse(final_text)
-    final_output = DiscoveryResult.model_validate(parsed)
-
-    #state['web_discovery_agent_output'] = final_output
+    entry = FORM_DIRECTORY[matched_key]
     return {
-        "web_discovery_agent_output": final_output,
-        "final_response": final_output
+        "web_discovery_agent_output": DiscoveryResult(
+            status="found",
+            best_match=DiscoveredPage(
+                agency_name=entry["agency_name"],
+                url=entry["url"],
+                relevance_reason=entry["relevance_reason"],
+            ),
+            alternatives=[],
+            search_query_used=query,
+        )
     }
-
 
 
 

@@ -8,6 +8,8 @@ import operator
 
 from states.Regulation_agent_structure import RAOutput
 from states.web_discovery_structure import DiscoveryResult
+from states.doc_agent_structure import DAOutput
+from states.guidance_agent_structure import GuidanceOutput
 
 class IntentModel(TypedDict):
     service_category: str          # "business_registration" | "passport" | "pension" | etc.
@@ -80,6 +82,14 @@ class GovPilotState(TypedDict):
     #── web discovery agent analysis ─────────────────────────────────────────
 
     web_discovery_agent_output: Optional[DiscoveryResult]
+
+    #── DA agent analysis ─────────────────────────────────────────
+
+    document_agent_output: Optional[DAOutput]
+
+    #── guidance agent analysis ─────────────────────────────────────────
+
+    guidance_agent_output: Optional[GuidanceOutput]
 
     # ── Regulation & Eligibility ─────────────────────────────────
     fetched_regulations: list[dict]    # raw chunks from FAISS

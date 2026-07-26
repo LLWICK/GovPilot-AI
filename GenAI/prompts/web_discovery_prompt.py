@@ -42,3 +42,16 @@ Schema:
 If status is "not_found" or "ambiguous", best_match should be null and alternatives
 (if any) should be listed instead.
 """
+
+
+CLASSIFY_PROMPT = """You are matching a citizen's request to one of these known
+Sri Lankan government services. Return ONLY the matching key from this list, or
+"none" if nothing matches well. deeply analyze the keys from the list and match 
+the user request to the correct key:
+
+{directory_keys}
+
+Citizen's request: {query}
+
+Respond with ONLY the key (e.g. "national_identity_card") or "none". No other text.
+"""

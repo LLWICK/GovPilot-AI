@@ -12,16 +12,22 @@ from langgraph.graph import START, END, StateGraph
 from agents.orchestrator_agent import orchestrator_agent
 from agents.regulation_agent import regulation_agent
 from agents.web_discovery_agent import discovery_agent
+from agents.guidance_agent import guidance_agent
 from states.agent_state import GovPilotState
+from langgraph.checkpoint.memory import MemorySaver
+
 
 
 
 graph = StateGraph(GovPilotState)
 
+checkpointer = MemorySaver()
+
+
 graph.add_node("orchestrator_agent", orchestrator_agent)
 graph.add_node("web_discovery_agent", discovery_agent)
 graph.add_node("regulation_agent", regulation_agent)
-
+graph.add_node("guidance_agent", guidance_agent)
 graph.add_edge(START, "orchestrator_agent")
 
 graph.add_conditional_edges(
@@ -30,6 +36,7 @@ graph.add_conditional_edges(
         {
             "web_discovery_agent": "web_discovery_agent",
             "regulation_agent": "regulation_agent",
+            "guidance_agent" : "guidance_agent",
             
             END: END
         }
@@ -37,23 +44,29 @@ graph.add_conditional_edges(
 
 
 graph.add_edge("regulation_agent", "orchestrator_agent")
-
 graph.add_edge("web_discovery_agent", "orchestrator_agent")
+graph.add_edge("guidance_agent", "orchestrator_agent")
 
 
-builder = graph.compile()
-
-query = "Provide me with new identity card registration forms and regulations in Sri Lanka" 
-
-res = asyncio.run(builder.ainvoke({"messages": [query]}))
-
-print(res['Regulation_agent_output'])
+builder = graph.compile(checkpointer=checkpointer)
 
 
+async def run_workflow(query: str, thread_id: str = "default-session"):
+    state = {
+        "messages": [query]
+    }
+    config = {"configurable": {"thread_id": thread_id}}
+
+    return await builder.ainvoke(state, config= config)
 
 
 
-    
-    # All sub-agents return to CA
-    
+#query = "How to obtain an National Identity Card in Sri Lanka"
+#result = asyncio.run(run_workflow(query))
+#print(result['final_response'])
+
+
+
+
+ 
 

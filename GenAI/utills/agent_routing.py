@@ -19,7 +19,13 @@ def route_to_next_agent(state: GovPilotState) -> dict:
 
 
     if not state.get("Regulation_agent_output"):
+        if state['web_discovery_agent_output'].status == "not_found":
+            return {"next_agent": None, "final_response": state['final_response']}
+            
         return {"next_agent": "regulation_agent"}
+
+    if not state.get("guidance_agent_output"):
+        return {"next_agent": "guidance_agent"}
 
     
     return {"next_agent": None, "final_response": state['final_response']}
