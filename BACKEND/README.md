@@ -9,7 +9,7 @@ processing, and workflow tracking.
 Copy-Item .env.example .env
 uv sync
 docker compose up -d
-uv run uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
 Open:
@@ -22,9 +22,42 @@ Open:
 Run checks:
 
 ```powershell
+uv run alembic upgrade head
 uv run ruff check .
 uv run pytest
 ```
 
 Real secrets belong in `.env`, which is excluded from Git. `.env.example`
 contains development-only placeholders.
+
+> Windows: do not add `--reload`. Uvicorn reload mode selects an event loop
+> that cannot launch Playwright's browser subprocess. Stop and restart the
+> backend manually after Python changes.
+
+## Current API slice
+
+- `GET /api/v1/sessions`
+- `POST /api/v1/sessions`
+- `GET /api/v1/sessions/{session_id}`
+- `GET /api/v1/sessions/{session_id}/messages`
+- `POST /api/v1/sessions/{session_id}/messages`
+
+Authentication is intentionally represented by one seeded development citizen
+for this first vertical slice. Replace it with verified NextAuth/OIDC identity
+before exposing the API outside local development.
+
+`POST /messages` now invokes the existing `GenAI` LangGraph through a temporary
+compatibility adapter. The adapter will be removed after the agents are moved
+into `backend/app/ai` and their imports and checkpoint storage are modernized.
+
+LangGraph checkpoints are persisted in a local SQLite database at
+`data/langgraph-checkpoints.sqlite3`. This allows an interrupted clarification
+to resume after an API restart and avoids a Windows event-loop conflict between
+async Psycopg and Playwright. PostgreSQL remains the source of truth for citizen
+application data.
+
+Run the checkpoint restart test:
+
+```powershell
+uv run pytest tests/test_durable_checkpoint.py
+```

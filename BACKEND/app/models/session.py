@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,6 +28,7 @@ class CitizenSession(TimestampMixin, Base):
     progress: Mapped[int] = mapped_column(Integer, default=0)
     current_step: Mapped[int] = mapped_column(Integer, default=1)
     total_steps: Mapped[int] = mapped_column(Integer, default=1)
+    awaiting_clarification: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user = relationship("User", back_populates="sessions")
     messages = relationship(
@@ -35,4 +36,10 @@ class CitizenSession(TimestampMixin, Base):
         back_populates="session",
         cascade="all, delete-orphan",
         order_by="Message.created_at",
+    )
+    steps = relationship(
+        "WorkflowStep",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="WorkflowStep.position",
     )

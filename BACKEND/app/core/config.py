@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
     database_url: str = (
         "postgresql+asyncpg://govpilot:govpilot_local@localhost:5432/govpilot"
     )
+    checkpoint_database_path: Path = Path("data/langgraph-checkpoints.sqlite3")
     redis_url: str = "redis://localhost:6379/0"
 
     s3_endpoint_url: AnyHttpUrl = "http://localhost:9000"
@@ -22,6 +24,7 @@ class Settings(BaseSettings):
     s3_region: str = "us-east-1"
 
     groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -19,6 +19,9 @@ def get_redis() -> Redis:
 
 async def close_resources() -> None:
     global _redis
+    from app.services.legacy_langgraph_pipeline import close_legacy_graph_runtime
+
+    await close_legacy_graph_runtime()
     if _redis is not None:
         await _redis.aclose()
         _redis = None

@@ -42,10 +42,9 @@ def orchestrator_agent(state: GovPilotState)-> GovPilotState:
             intent = chain.invoke({"question": combined_query})
 
             return {
-                
+                "messages": [combined_query],
                 "parsed_intent": intent,
-                "next_agent": "web_discovery_agent",   # wait for user reply
-                "final_response": question
+                "next_agent": "web_discovery_agent",
             }
         
         return {
