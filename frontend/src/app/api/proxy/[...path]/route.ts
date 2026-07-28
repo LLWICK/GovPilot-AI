@@ -218,9 +218,10 @@ function getQueryParams(req: NextRequest) {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join("/");
+  const resolvedParams = await params;
+  const path = resolvedParams.path.join("/");
 
   // 1. GET api/proxy/sessions - list active citizen applications
   if (path === "sessions") {
@@ -540,9 +541,10 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join("/");
+  const resolvedParams = await params;
+  const path = resolvedParams.path.join("/");
 
   // 1. POST api/proxy/sessions/new - create a new service session (Passport, NIC, BirthCert or Dispatcher)
   if (path === "sessions/new") {

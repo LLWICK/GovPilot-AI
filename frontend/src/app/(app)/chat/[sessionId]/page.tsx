@@ -48,8 +48,8 @@ interface SessionInfo {
   steps: { id: string; label: string; completed: boolean; current: boolean }[];
 }
 
-export default function ChatPage({ params }: { params: { sessionId: string } }) {
-  const { sessionId } = params;
+export default function ChatPage({ params }: { params: Promise<{ sessionId: string }> }) {
+  const { sessionId } = React.use(params);
   const queryClient = useQueryClient();
   const [inputText, setInputText] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
