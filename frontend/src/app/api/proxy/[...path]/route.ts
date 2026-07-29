@@ -135,7 +135,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { path: string[] } }
 ) {
-  const path = params.path.join("/");
+  const resolvedParams = await params;
+  const path = resolvedParams.path.join("/");
 
   try {
     if (path === "sessions") {
@@ -179,7 +180,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { path: string[] } }
 ) {
-  const path = params.path.join("/");
+  const resolvedParams = await params;
+  const path = resolvedParams.path.join("/");
 
   try {
     if (path === "sessions/new") {
