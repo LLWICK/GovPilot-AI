@@ -25,9 +25,9 @@ interface Document {
 export default function DocumentUploadPage({
   params,
 }: {
-  params: { sessionId: string };
+  params: Promise<{ sessionId: string }>;
 }) {
-  const { sessionId } = params;
+  const { sessionId } = React.use(params);
   const queryClient = useQueryClient();
   const [uploadingDocId, setUploadingDocId] = useState<string | null>(null);
 
