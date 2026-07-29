@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_Sinhala, Noto_Sans_Tamil } from "next/font/google";
+import { Outfit, Noto_Sans_Sinhala, Noto_Sans_Tamil } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" });
 
 const sinhala = Noto_Sans_Sinhala({
   subsets: ["sinhala"],
@@ -30,9 +30,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full", "font-sans", inter.variable)}>
+    <html lang="en" className={cn("h-full", "font-sans", outfit.variable)}>
       <body
-        className={`${inter.variable} ${sinhala.variable} ${tamil.variable} font-sans min-h-dvh flex flex-col bg-govbg`}
+        className={`${outfit.variable} ${sinhala.variable} ${tamil.variable} font-sans min-h-dvh flex flex-col bg-govbg`}
       >
         <Providers>{children}</Providers>
       </body>

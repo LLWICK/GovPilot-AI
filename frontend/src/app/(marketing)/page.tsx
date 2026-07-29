@@ -187,7 +187,7 @@ export default function MarketingPage() {
   );
 
   return (
-    <div className={`flex flex-col min-h-dvh bg-zinc-950 text-white font-sans transition-colors duration-200 ${
+    <div className={`flex flex-col min-h-dvh bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans transition-colors duration-200 ${
       lang === "si" ? "font-sinhala" : lang === "ta" ? "font-tamil" : "font-sans"
     }`}>
       {/* Resizable Floating Navbar */}
@@ -202,30 +202,30 @@ export default function MarketingPage() {
       />
 
       {/* Hero Illustration Background Section */}
-      <section className="relative min-h-[92vh] flex flex-col justify-center items-center px-6 lg:px-12 bg-zinc-950 overflow-hidden border-b border-zinc-900/50">
+      <section className="relative min-h-[92vh] flex flex-col justify-center items-center px-6 lg:px-12 bg-slate-50 dark:bg-zinc-950 overflow-hidden border-b border-slate-200 dark:border-zinc-900/50">
         
         {/* Magic UI Ripple Background */}
-        <Ripple className="opacity-70" />
+        <Ripple className="opacity-40 dark:opacity-70" />
         
         {/* Center luminous radial glow overlay to make it much brighter */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,transparent_65%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.02)_0%,transparent_65%)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,transparent_65%)] pointer-events-none" />
 
         <div className="max-w-4xl mx-auto w-full relative z-10 space-y-6 pt-16 flex flex-col items-center justify-center text-center">
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-semibold tracking-tighter leading-[0.9] text-white">
+          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-semibold tracking-tighter leading-[0.9] text-slate-900 dark:text-white">
             {currentContent.heroTitle}
-            <span className="block text-zinc-400">{currentContent.heroTitleAccent}</span>
+            <span className="block text-slate-500 dark:text-zinc-400">{currentContent.heroTitleAccent}</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-zinc-450 leading-relaxed max-w-[65ch] mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 dark:text-zinc-450 leading-relaxed max-w-[65ch] mx-auto">
             {currentContent.heroSubtitle}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 w-full">
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-2 h-11 px-5 border border-zinc-800 hover:bg-zinc-900 rounded font-bold text-xs text-white transition-all active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 h-11 px-5 border border-slate-300 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-900 rounded font-bold text-xs text-slate-900 dark:text-white transition-all active:scale-[0.98]"
             >
-              <div className="w-5 h-5 rounded bg-amber-500 flex items-center justify-center text-slate-950">
+              <div className="w-5 h-5 rounded bg-amber-500 flex items-center justify-center text-white dark:text-slate-950">
                 <SquaresFour className="w-3.5 h-3.5" weight="fill" />
               </div>
               <span>Open Workspace</span>
@@ -233,7 +233,7 @@ export default function MarketingPage() {
 
             <a
               href="#services"
-              className="inline-flex items-center justify-center text-xs font-bold text-zinc-400 hover:text-white transition-colors h-11 px-4"
+              className="inline-flex items-center justify-center text-xs font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors h-11 px-4"
             >
               <span>Explore Services Catalog →</span>
             </a>
@@ -242,9 +242,9 @@ export default function MarketingPage() {
       </section>
 
       {/* Unified Search Section */}
-      <section className="bg-zinc-950 py-10 border-b border-zinc-900/50 px-6">
+      <section className="bg-slate-50 dark:bg-zinc-950 py-10 border-b border-slate-200 dark:border-zinc-900/50 px-6">
         <div className="max-w-xl mx-auto relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
             <MagnifyingGlass className="w-5 h-5" weight="bold" />
           </div>
           <input
@@ -252,7 +252,7 @@ export default function MarketingPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={currentContent.searchPlaceholder}
-            className="w-full h-12 pl-11 pr-4 bg-zinc-900/80 text-white placeholder-zinc-500 border border-zinc-800 rounded focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm transition-all shadow-sm"
+            className="w-full h-12 pl-11 pr-4 bg-white dark:bg-zinc-900/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 border border-slate-200 dark:border-zinc-800 rounded focus:outline-none focus:ring-1 focus:ring-amber-500 text-sm transition-all shadow-sm"
           />
         </div>
       </section>
@@ -260,12 +260,12 @@ export default function MarketingPage() {
       {/* Bento Grid Directory */}
       <main id="services" className="max-w-7xl mx-auto px-6 py-16 flex-grow space-y-12 relative z-10 w-full">
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-white tracking-tight uppercase">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">
             {currentContent.servicesHeading}
           </h2>
 
           {filteredServices.length === 0 ? (
-            <div className="text-center py-12 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-500">
+            <div className="text-center py-12 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 rounded-2xl text-slate-500 dark:text-zinc-500 shadow-sm">
               No matching government services found.
             </div>
           ) : (
@@ -274,16 +274,15 @@ export default function MarketingPage() {
               <BentoCard
                 name={currentContent.generalCta}
                 description={currentContent.generalCtaDesc}
-                className="col-span-3 md:col-span-2"
+                className="col-span-3 md:col-span-2 bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800"
                 Icon={SquaresFour}
                 href="/chat/new"
                 cta="Ask Central Dispatcher"
                 background={
                   <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-                    {/* Pulsing high-tech radar vector */}
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-zinc-700 animate-pulse" />
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-zinc-800 border-dashed animate-spin [animation-duration:16s]" />
-                    <div className="absolute top-6 right-6 flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-500 rounded border border-amber-500/20 text-[10px] font-bold uppercase tracking-wider">
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-slate-300 dark:border-zinc-700 animate-pulse" />
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-slate-300 dark:border-zinc-800 border-dashed animate-spin [animation-duration:16s]" />
+                    <div className="absolute top-6 right-6 flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-500 rounded border border-amber-500/20 text-[10px] font-bold uppercase tracking-wider">
                       Central Agent Router
                     </div>
                   </div>
@@ -294,24 +293,23 @@ export default function MarketingPage() {
               <BentoCard
                 name="Need Assistance?"
                 description="Our system evaluates citizen documents, calculates processing fees, and schedules local physical biometric registrations automatically."
-                className="col-span-3 md:col-span-1"
+                className="col-span-3 md:col-span-1 bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800"
                 Icon={Question}
                 href="#faq"
                 cta="View FAQ"
                 background={
                   <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-                    {/* Stacked decorative mock files */}
-                    <div className="absolute -bottom-6 -right-2 w-36 h-24 border border-zinc-800 bg-zinc-950/50 rounded-xl transform -rotate-12 flex flex-col justify-between p-3">
-                      <div className="w-1/2 h-2 bg-zinc-850 rounded" />
-                      <div className="w-5/6 h-1.5 bg-zinc-850 rounded" />
-                      <div className="w-2/3 h-1.5 bg-zinc-850 rounded" />
+                    <div className="absolute -bottom-6 -right-2 w-36 h-24 border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/50 rounded-xl transform -rotate-12 flex flex-col justify-between p-3">
+                      <div className="w-1/2 h-2 bg-slate-200 dark:bg-zinc-850 rounded" />
+                      <div className="w-5/6 h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
+                      <div className="w-2/3 h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
                     </div>
-                    <div className="absolute -bottom-2 -right-8 w-36 h-24 border border-zinc-800 bg-zinc-950/60 rounded-xl transform rotate-6 flex flex-col justify-between p-3">
-                      <div className="w-1/3 h-2 bg-zinc-800 rounded" />
-                      <div className="w-4/5 h-1.5 bg-zinc-800 rounded" />
-                      <div className="w-1/2 h-1.5 bg-zinc-800 rounded" />
+                    <div className="absolute -bottom-2 -right-8 w-36 h-24 border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-950/60 rounded-xl transform rotate-6 flex flex-col justify-between p-3">
+                      <div className="w-1/3 h-2 bg-slate-200 dark:bg-zinc-800 rounded" />
+                      <div className="w-4/5 h-1.5 bg-slate-200 dark:bg-zinc-800 rounded" />
+                      <div className="w-1/2 h-1.5 bg-slate-200 dark:bg-zinc-800 rounded" />
                     </div>
-                    <div className="absolute top-6 right-6 text-[9px] font-extrabold uppercase tracking-widest text-zinc-550">
+                    <div className="absolute top-6 right-6 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-zinc-550">
                       GovPilot AI Platform
                     </div>
                   </div>
@@ -324,51 +322,48 @@ export default function MarketingPage() {
                   key={service.id}
                   name={service.name}
                   description={service.desc}
-                  className="col-span-3 md:col-span-1"
+                  className="col-span-3 md:col-span-1 bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800"
                   Icon={service.icon}
                   href={`/chat/new?serviceId=${service.id}`}
                   cta="Start Application"
                   background={
                     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
                       {service.id === "passport-renewal" ? (
-                        /* Mock passport document card */
-                        <div className="absolute -bottom-6 -right-6 w-36 h-28 border border-zinc-800 bg-zinc-950/50 rounded-2xl transform rotate-12 p-4 flex flex-col justify-between">
+                        <div className="absolute -bottom-6 -right-6 w-36 h-28 border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/50 rounded-2xl transform rotate-12 p-4 flex flex-col justify-between">
                           <div className="flex items-center gap-1.5">
-                            <div className="w-4 h-4 rounded bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-[7px] text-amber-500 font-black">P</div>
-                            <div className="w-16 h-1.5 bg-zinc-850 rounded" />
+                            <div className="w-4 h-4 rounded bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-[7px] text-amber-600 dark:text-amber-500 font-black">P</div>
+                            <div className="w-16 h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
                           </div>
-                          <div className="w-full h-1.5 bg-zinc-850 rounded" />
-                          <div className="w-5/6 h-1.5 bg-zinc-850 rounded" />
+                          <div className="w-full h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
+                          <div className="w-5/6 h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
                         </div>
                       ) : service.id === "nic-application" ? (
-                        /* Mock identity card layout */
-                        <div className="absolute -bottom-8 -right-8 w-44 h-28 border border-zinc-800 bg-zinc-950/50 rounded-2xl transform -rotate-6 p-4 flex flex-col justify-between">
+                        <div className="absolute -bottom-8 -right-8 w-44 h-28 border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/50 rounded-2xl transform -rotate-6 p-4 flex flex-col justify-between">
                           <div className="flex justify-between items-start">
-                            <div className="w-20 h-1.5 bg-zinc-850 rounded" />
-                            <div className="w-6 h-6 rounded bg-zinc-850/50 border border-zinc-800" />
+                            <div className="w-20 h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
+                            <div className="w-6 h-6 rounded bg-slate-100 dark:bg-zinc-850/50 border border-slate-200 dark:border-zinc-800" />
                           </div>
                           <div className="space-y-1">
-                            <div className="w-3/4 h-1 bg-zinc-850 rounded" />
-                            <div className="w-1/2 h-1 bg-zinc-850 rounded" />
+                            <div className="w-3/4 h-1 bg-slate-200 dark:bg-zinc-850 rounded" />
+                            <div className="w-1/2 h-1 bg-slate-200 dark:bg-zinc-850 rounded" />
                           </div>
                         </div>
                       ) : (
-                        /* Mock birth certificate document copy */
-                        <div className="absolute -bottom-10 -right-6 w-36 h-32 border border-zinc-800 bg-zinc-950/50 rounded transform rotate-6 p-3 flex flex-col gap-2">
-                          <div className="w-12 h-1.5 bg-zinc-850 rounded mx-auto" />
+                        <div className="absolute -bottom-10 -right-6 w-36 h-32 border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/50 rounded transform rotate-6 p-3 flex flex-col gap-2">
+                          <div className="w-12 h-1.5 bg-slate-200 dark:bg-zinc-850 rounded mx-auto" />
                           <div className="space-y-1.5 pt-2">
-                            <div className="w-full h-1 bg-zinc-850 rounded" />
-                            <div className="w-11/12 h-1 bg-zinc-850 rounded" />
-                            <div className="w-5/6 h-1 bg-zinc-850 rounded" />
+                            <div className="w-full h-1 bg-slate-200 dark:bg-zinc-850 rounded" />
+                            <div className="w-11/12 h-1 bg-slate-200 dark:bg-zinc-850 rounded" />
+                            <div className="w-5/6 h-1 bg-slate-200 dark:bg-zinc-850 rounded" />
                           </div>
                         </div>
                       )}
                       
                       <div className="absolute top-6 right-6 flex flex-col items-end gap-1 text-right">
-                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 dark:text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
                           {service.fee}
                         </span>
-                        <span className="text-[9px] font-bold text-zinc-500 flex items-center gap-1">
+                        <span className="text-[9px] font-bold text-slate-500 dark:text-zinc-500 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           <span>{service.time}</span>
                         </span>
@@ -383,17 +378,17 @@ export default function MarketingPage() {
       </main>
 
       {/* FAQ Panel */}
-      <div id="faq" className="max-w-3xl mx-auto py-16 px-6 border-t border-zinc-900 mt-16 space-y-6 relative z-10 w-full">
-        <h3 className="text-xl font-bold text-white text-center tracking-tight uppercase">
+      <div id="faq" className="max-w-3xl mx-auto py-16 px-6 border-t border-slate-200 dark:border-zinc-900 mt-16 space-y-6 relative z-10 w-full">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center tracking-tight uppercase">
           {faqContent[lang].heading}
         </h3>
         <Accordion className="w-full">
           {faqContent[lang].items.map((item, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border-b border-zinc-900">
-              <AccordionTrigger className="text-left font-bold text-zinc-300 hover:text-amber-500 text-sm py-4">
+            <AccordionItem key={index} value={`item-${index}`} className="border-b border-slate-200 dark:border-zinc-900">
+              <AccordionTrigger className="text-left font-bold text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-500 text-sm py-4">
                 {item.q}
               </AccordionTrigger>
-              <AccordionContent className="text-zinc-450 text-sm leading-relaxed pb-4">
+              <AccordionContent className="text-slate-600 dark:text-zinc-450 text-sm leading-relaxed pb-4">
                 {item.a}
               </AccordionContent>
             </AccordionItem>
@@ -402,8 +397,8 @@ export default function MarketingPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-zinc-950 border-t border-zinc-900 py-6 relative z-10 transition-colors">
-        <div className="max-w-7xl mx-auto px-6 text-center text-[10px] text-zinc-550 font-bold tracking-wider uppercase">
+      <footer className="bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-900 py-6 relative z-10 transition-colors">
+        <div className="max-w-7xl mx-auto px-6 text-center text-[10px] text-slate-500 dark:text-zinc-550 font-bold tracking-wider uppercase">
           {currentContent.officialNotice}
         </div>
       </footer>
