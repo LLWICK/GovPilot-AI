@@ -16,6 +16,143 @@ This platform provides a unified workspace for citizens to interact conversation
 6. **A11y Floor**: Standard focus rings, contrast ratios exceeding WCAG AA limits, and layout height stability.
 
 
+## Run the Full Application Locally
+
+These are the recommended instructions for running this branch on Windows.
+The active API is the FastAPI application in `backend`; the separate `GenAI`
+API described later in this README is retained only as legacy agent code.
+
+### Prerequisites
+
+- Docker Desktop
+- Python 3.13
+- [`uv`](https://docs.astral.sh/uv/)
+- Node.js and npm
+- A Groq API key
+
+### 1. Configure the backend
+
+```powershell
+cd D:\Work\GovPilot-AI\backend
+
+if (-not (Test-Path .env)) {
+    Copy-Item .env.example .env
+}
+```
+
+Open `backend\.env` and set:
+
+```env
+GROQ_API_KEY=your_real_groq_key
+```
+
+Never commit or share the `.env` file.
+
+Install the backend dependencies and Playwright browser:
+
+```powershell
+uv sync
+uv run playwright install chromium
+```
+
+### 2. Start local infrastructure
+
+Make sure Docker Desktop is running, then execute:
+
+```powershell
+cd D:\Work\GovPilot-AI\backend
+docker compose up -d
+docker compose ps
+```
+
+PostgreSQL, Redis, and MinIO should report `healthy`.
+
+Apply the database migrations:
+
+```powershell
+uv run alembic upgrade head
+```
+
+### 3. Start FastAPI
+
+```powershell
+cd D:\Work\GovPilot-AI\backend
+uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+> **Important on Windows:** do not add `--reload`. Uvicorn reload mode uses
+> an event loop that cannot launch Playwright's browser subprocess. Chat
+> requests that reach the Regulation Agent will otherwise fail with HTTP 502
+> and `NotImplementedError`.
+
+Leave this terminal running. Verify:
+
+- Swagger: http://127.0.0.1:8000/docs
+- Liveness: http://127.0.0.1:8000/api/v1/health/live
+- Readiness: http://127.0.0.1:8000/api/v1/health/ready
+
+### 4. Configure and start Next.js
+
+Open another PowerShell terminal:
+
+```powershell
+cd D:\Work\GovPilot-AI\frontend
+
+if (-not (Test-Path .env.local)) {
+    Copy-Item .env.example .env.local
+}
+
+npm ci
+npm run dev -- --hostname 127.0.0.1 --port 3450
+```
+
+Port `3450` is used because some Windows installations reserve the normal
+Next.js port range around `3000`.
+
+Open:
+
+```text
+http://127.0.0.1:3450/dashboard
+```
+
+### 5. Test the connected flow
+
+1. Start a new General Inquiry Chat or select the NIC service.
+2. Send: `I need help with a government service.`
+3. When the assistant asks for clarification, reply:
+   `I need to apply for a National Identity Card.`
+4. Wait for the agent workflow. Live government-site retrieval can take
+   30–60 seconds.
+5. Refresh the page and confirm the conversation remains available.
+
+The request path is:
+
+```text
+Next.js -> Next.js API proxy -> FastAPI -> PostgreSQL
+        -> LangGraph -> Groq/Playwright -> SSE -> chat UI
+```
+
+Document upload and OCR are not connected yet. Document lists are currently
+empty and upload attempts return HTTP 501.
+
+### Local validation commands
+
+Backend:
+
+```powershell
+cd D:\Work\GovPilot-AI\backend
+uv run ruff check .
+uv run pytest
+uv run alembic check
+```
+
+Frontend:
+
+```powershell
+cd D:\Work\GovPilot-AI\frontend
+npm run build
+```
+
 ## GenAI Layer
 
 The GenAI layer is a multi-agent system built with LangGraph that takes a
@@ -130,7 +267,11 @@ Session continuity (including pause/resume for clarification) is handled by
 a LangGraph checkpointer keyed on `thread_id` — every request in the same
 conversation must reuse the same `thread_id`.
 
-### Setting up the GenAI layer
+### Legacy: running the GenAI layer by itself
+
+The following section runs the original standalone agent API for agent
+experimentation. It is not required when running the connected frontend and
+`backend` application described above.
 
 **1. Prerequisites**
 - Python 3.11+ (project developed against 3.13)

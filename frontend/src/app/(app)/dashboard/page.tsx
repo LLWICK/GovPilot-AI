@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { MagicCard } from "@/components/ui/magic-card";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 interface SessionSummary {
   sessionId: string;
@@ -83,7 +83,7 @@ const PROACTIVE_ALERTS = [
   }
 ];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -91,7 +91,7 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 15 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
 };

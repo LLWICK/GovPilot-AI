@@ -5,8 +5,9 @@ import { useState } from "react";
 export interface StreamResponse {
   reply_text: string;
   cards?: any[];
-  current_step: number;
-  total_steps: number;
+  current_step?: number;
+  total_steps?: number;
+  needs_clarification?: boolean;
 }
 
 export function useChatStream() {
@@ -26,14 +27,26 @@ export function useChatStream() {
     setStreamCards(null);
 
     try {
-      const response = await fetch(
-        `/api/proxy/chat/stream?sessionId=${encodeURIComponent(
-          sessionId
-        )}&message=${encodeURIComponent(message)}`
-      );
+      const response = await fetch("/api/proxy/chat/stream", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionId,
+          message,
+          language: "en",
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to start chat stream");
+        const errorPayload = await response
+          .json()
+          .catch(() => ({ detail: "Failed to start chat stream." }));
+        throw new Error(
+          errorPayload.detail ||
+            `The backend returned HTTP ${response.status}.`
+        );
       }
 
       if (!response.body) {
@@ -87,7 +100,11 @@ export function useChatStream() {
       }
     } catch (error) {
       console.error("Error in chat stream:", error);
-      setStreamText("Communication error occurred. Please retry your message.");
+      setStreamText(
+        error instanceof Error
+          ? error.message
+          : "Communication error occurred. Please retry your message."
+      );
     } finally {
       setIsStreaming(false);
     }

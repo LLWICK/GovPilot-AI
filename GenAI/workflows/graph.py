@@ -47,8 +47,10 @@ graph.add_edge("regulation_agent", "orchestrator_agent")
 graph.add_edge("web_discovery_agent", "orchestrator_agent")
 graph.add_edge("guidance_agent", "orchestrator_agent")
 
-
-builder = graph.compile(checkpointer=checkpointer)
+# The active FastAPI backend compiles this graph with AsyncPostgresSaver.
+# `builder` remains only for the deprecated standalone GenAI API.
+workflow_graph = graph
+builder = workflow_graph.compile(checkpointer=checkpointer)
 
 
 async def run_workflow(query: str, thread_id: str = "default-session"):
