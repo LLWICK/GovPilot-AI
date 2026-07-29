@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const BACKEND_URL = (
   process.env.BACKEND_URL ?? "http://127.0.0.1:8000/api/v1"
@@ -20,12 +22,16 @@ async function requestBackend(
   path: string,
   init?: RequestInit
 ): Promise<Response> {
+  const session = await getServerSession(authOptions);
   return fetch(`${BACKEND_URL}${path}`, {
     ...init,
     cache: "no-store",
     headers: {
       Accept: "application/json",
       ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...(session?.accessToken
+        ? { Authorization: `Bearer ${session.accessToken}` }
+        : {}),
       ...init?.headers,
     },
   });
@@ -133,7 +139,7 @@ async function streamChatResponse(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
   const path = resolvedParams.path.join("/");
@@ -178,7 +184,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
   const path = resolvedParams.path.join("/");
