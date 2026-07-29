@@ -53,6 +53,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
   const queryClient = useQueryClient();
   const [inputText, setInputText] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // SSE stream state hook
@@ -120,13 +121,40 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
     scrollToBottom();
   }, [chatHistory, streamText]);
 
-  // Submit Message handler
+  // Calculate progress dynamically based on completed steps in sessionInfo
+  const calculatedProgress = React.useMemo(() => {
+    if (sessionInfo?.steps && sessionInfo.steps.length > 0) {
+      const completedCount = sessionInfo.steps.filter((s) => s.completed).length;
+      return Math.round((completedCount / sessionInfo.steps.length) * 100);
+    }
+    return sessionInfo?.progress ?? 0;
+  }, [sessionInfo]);
+
+  // Submit Message handler (Optimistically appends user message instantly)
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isStreaming) return;
+    const userMsgText = text;
     setInputText("");
 
+    // Optimistically insert user message immediately into React Query cache
+    const userMessage: Message = {
+      id: `temp-${Date.now()}`,
+      sender: "user",
+      text: userMsgText,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    queryClient.setQueryData<Message[]>(["chatHistory", sessionId], (old = []) => [
+      ...(old || []),
+      userMessage,
+    ]);
+
+    setTimeout(() => {
+      scrollToBottom();
+    }, 10);
+
     // Trigger SSE stream connection
-    await startStream(text, sessionId, () => {
+    await startStream(userMsgText, sessionId, () => {
       // Stream complete callback: Synchronize query cache
       refetchChat();
       refetchSession();
@@ -147,17 +175,19 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
         <SessionHeader
           serviceName={sessionInfo?.serviceName || "GovPilot AI Portal"}
           status={sessionInfo?.status || "Connecting..."}
-          progress={sessionInfo?.progress || 10}
+          progress={calculatedProgress}
           agencyName={sessionInfo?.agencyName}
           onMenuToggle={() => setIsDrawerOpen(true)}
+          onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          isSidebarOpen={isSidebarOpen}
         />
 
         {/* Message List */}
-        <div className="flex-grow overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
+        <div className="flex-grow overflow-y-auto px-3 sm:px-6 py-6 space-y-6 custom-scrollbar">
           {chatHistory?.map((msg) => (
             <PKMessage
               key={msg.id}
-              className={`max-w-[85%] animate-slide-up-fade ${
+              className={`max-w-[92%] sm:max-w-[85%] lg:max-w-[80%] animate-slide-up-fade ${
                 msg.sender === "user" ? "ml-auto flex-row-reverse" : ""
               }`}
             >
@@ -181,7 +211,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
               <div className="space-y-3 flex-1 min-w-0">
                 <MessageContent
                   markdown={msg.sender === "agent"}
-                  className={`p-4 rounded-2xl shadow-sm text-base leading-relaxed border ${
+                  className={`p-3.5 sm:p-4 rounded-2xl shadow-sm text-sm sm:text-base leading-relaxed border ${
                     msg.sender === "user"
                       ? "bg-primary dark:bg-amber-700 text-white font-medium rounded-tr-none border-transparent"
                       : "bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 border-slate-200 dark:border-zinc-800 rounded-tl-none"
@@ -192,7 +222,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
 
                 {/* Structured Cards Dispatcher */}
                 {msg.cards && msg.cards.length > 0 && (
-                  <div className="space-y-3">
+                  <div className="space-y-3 w-full">
                     {msg.cards.map((card, idx) => (
                       <StructuredCard
                         key={idx}
@@ -209,7 +239,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
 
           {/* SSE Stream Placeholder rendering while active */}
           {isStreaming && (
-            <PKMessage className="max-w-[85%] flex gap-3">
+            <PKMessage className="max-w-[92%] sm:max-w-[85%] lg:max-w-[80%] flex gap-3">
               <MessageAvatar
                 src=""
                 alt="Agent"
@@ -219,7 +249,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
               <div className="space-y-3 flex-1 min-w-0">
                 <MessageContent
                   markdown={true}
-                  className="p-4 rounded-2xl bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-800 rounded-tl-none shadow-sm text-base leading-relaxed"
+                  className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-800 rounded-tl-none shadow-sm text-sm sm:text-base leading-relaxed"
                 >
                   {streamText === "" ? "Thinking..." : streamText}
                 </MessageContent>
@@ -233,7 +263,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
                 )}
 
                 {streamCards && (
-                  <div className="space-y-3">
+                  <div className="space-y-3 w-full">
                     {streamCards.map((card, idx) => (
                       <StructuredCard
                         key={idx}
@@ -251,58 +281,72 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Chat Input Bar using Prompt Kit */}
-        <div className="border-t border-slate-200 dark:border-zinc-800 p-4 bg-white dark:bg-zinc-900">
-          <div className="max-w-4xl mx-auto">
+        {/* Chat Input Bar - Single Horizontal Row (Paperclip + Textarea + Send Button) */}
+        <div className="flex-shrink-0 border-t border-slate-200 dark:border-zinc-800 p-2.5 sm:p-3 bg-white dark:bg-zinc-900 z-10">
+          <div className="w-full px-1 sm:px-2">
             <PromptInput
               value={inputText}
               onValueChange={setInputText}
               onSubmit={() => handleSendMessage(inputText)}
               disabled={isStreaming}
-              className="relative flex flex-col bg-slate-55 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-850 px-4 py-3 rounded-2xl focus-within:bg-white dark:focus-within:bg-zinc-900/60 focus-within:border-zinc-550 transition-colors"
+              className="relative flex items-center gap-2 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 px-3 py-1.5 sm:py-2 rounded-xl focus-within:bg-white dark:focus-within:bg-zinc-900/90 focus-within:border-primary/50 dark:focus-within:border-amber-500/50 transition-colors w-full"
             >
+              {/* Upload Paperclip Button */}
+              <PromptInputAction tooltip="Upload Supporting Files" side="top">
+                <Link
+                  href={`/documents/${sessionId}`}
+                  className="p-1.5 hover:bg-slate-200/60 dark:hover:bg-zinc-800 active-press-trigger text-slate-500 dark:text-zinc-400 rounded-lg transition-colors flex items-center justify-center flex-shrink-0"
+                >
+                  <Paperclip className="w-4.5 h-4.5" weight="bold" />
+                </Link>
+              </PromptInputAction>
+
+              {/* Textarea Input - Horizontally Aligned */}
               <PromptInputTextarea
                 placeholder="Ask a question or reply to the agent..."
                 disabled={isStreaming}
-                className="text-base text-slate-800 dark:text-zinc-100 placeholder-slate-450 dark:placeholder-zinc-550 min-h-[44px]"
+                className="flex-1 text-sm text-slate-800 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 min-h-[36px] max-h-[120px] py-1.5 bg-transparent resize-none border-none focus:outline-none"
               />
-              <PromptInputActions className="justify-between pt-2 border-t border-slate-100 dark:border-zinc-850 mt-2">
-                <div className="flex gap-2">
-                  <PromptInputAction tooltip="Upload Supporting Files" side="top">
-                    <Link
-                      href={`/documents/${sessionId}`}
-                      className="p-2 hover:bg-slate-200/60 dark:hover:bg-zinc-800 active-press-trigger text-slate-500 dark:text-zinc-400 rounded-lg transition-colors flex items-center justify-center"
-                    >
-                      <Paperclip className="w-4.5 h-4.5" weight="bold" />
-                    </Link>
-                  </PromptInputAction>
-                </div>
 
-                {/* Send button */}
-                <button
-                  type="button"
-                  onClick={() => handleSendMessage(inputText)}
-                  disabled={isStreaming || !inputText.trim()}
-                  className="inline-flex items-center justify-center p-2.5 bg-primary dark:bg-zinc-800 hover:bg-primary-light dark:hover:bg-zinc-700 active-press-trigger disabled:opacity-40 text-white rounded-xl focus:outline-none"
-                  title="Send Message"
-                >
-                  {isStreaming ? (
-                    <Spinner className="w-4 h-4 animate-spin" weight="bold" />
-                  ) : (
-                    <PaperPlaneTilt className="w-4 h-4" weight="fill" />
-                  )}
-                </button>
-              </PromptInputActions>
+              {/* Send Button */}
+              <button
+                type="button"
+                onClick={() => handleSendMessage(inputText)}
+                disabled={isStreaming || !inputText.trim()}
+                className="inline-flex items-center justify-center p-2 bg-primary hover:bg-primary-light dark:bg-amber-600 dark:hover:bg-amber-500 active-press-trigger disabled:opacity-40 text-white rounded-lg focus:outline-none flex-shrink-0 transition-colors"
+                title="Send Message"
+              >
+                {isStreaming ? (
+                  <Spinner className="w-4 h-4 animate-spin" weight="bold" />
+                ) : (
+                  <PaperPlaneTilt className="w-4 h-4" weight="fill" />
+                )}
+              </button>
             </PromptInput>
           </div>
         </div>
       </div>
 
-      {/* RIGHT SIDE PANEL (Desktop Only) */}
-      <div className="hidden md:flex md:w-80 lg:w-[360px] flex-shrink-0 border-l border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 flex-col gap-6 overflow-y-auto custom-scrollbar">
-        {sessionInfo?.steps && <WorkflowTracker steps={sessionInfo.steps} />}
-        {documents && <DocumentChecklist documents={documents} />}
-      </div>
+      {/* RIGHT SIDE PANEL (Desktop Only & Collapsible) */}
+      {isSidebarOpen && (
+        <div className="hidden md:flex md:w-80 lg:w-[340px] flex-shrink-0 border-l border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 pb-8 flex-col gap-5 overflow-y-auto custom-scrollbar transition-all duration-300">
+          <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-zinc-800/80">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+              Workflow Sidebar
+            </span>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-1 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-400 dark:text-zinc-400 rounded-md text-xs font-semibold transition-colors"
+              title="Collapse right sidebar"
+            >
+              Hide
+            </button>
+          </div>
+
+          {sessionInfo?.steps && <WorkflowTracker steps={sessionInfo.steps} />}
+          {documents && <DocumentChecklist documents={documents} />}
+        </div>
+      )}
 
       {/* MOBILE DRAWER (WorkflowTracker / DocumentChecklist overlay) */}
       {isDrawerOpen && (

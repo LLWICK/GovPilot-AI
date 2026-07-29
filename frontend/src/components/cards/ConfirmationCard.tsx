@@ -18,11 +18,11 @@ export default function ConfirmationCard({
   const lines = summary.split("\n").filter((line) => line.trim() !== "");
 
   return (
-    <div className="bg-white border-2 border-primary-light rounded-xl p-5 shadow-md max-w-md w-full my-2">
-      <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+    <div className="bg-white dark:bg-zinc-900 border-2 border-primary-light dark:border-amber-600 rounded-xl p-4 sm:p-5 shadow-md max-w-full sm:max-w-md w-full my-2">
+      <h4 className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-3">
         Review & Confirm Application
       </h4>
-      <div className="bg-slate-50 rounded-lg p-4 mb-5 border border-slate-100 space-y-3">
+      <div className="bg-slate-50 dark:bg-zinc-950/80 rounded-lg p-3.5 sm:p-4 mb-5 border border-slate-100 dark:border-zinc-800 space-y-3">
         {lines.map((line, idx) => {
           const parts = line.split(":");
           if (parts.length >= 2) {
@@ -31,17 +31,17 @@ export default function ConfirmationCard({
             return (
               <div
                 key={idx}
-                className="flex flex-col sm:flex-row sm:justify-between border-b border-slate-100 pb-2 last:border-0 last:pb-0"
+                className="flex flex-col sm:flex-row sm:justify-between border-b border-slate-100 dark:border-zinc-800/80 pb-2 last:border-0 last:pb-0"
               >
-                <span className="text-sm font-semibold text-slate-500">{key}</span>
-                <span className="text-sm font-bold text-slate-800 text-right">
+                <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-zinc-400">{key}</span>
+                <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-zinc-100 text-left sm:text-right">
                   {value}
                 </span>
               </div>
             );
           }
           return (
-            <p key={idx} className="text-sm text-slate-700">
+            <p key={idx} className="text-xs sm:text-sm text-slate-700 dark:text-zinc-300">
               {line}
             </p>
           );
@@ -49,7 +49,7 @@ export default function ConfirmationCard({
       </div>
       <button
         onClick={onConfirm}
-        className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold rounded-lg transition-all focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shadow-sm text-base"
+        className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98] text-white font-bold rounded-lg transition-all focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shadow-sm text-sm sm:text-base"
       >
         <Check className="w-5 h-5" weight="bold" />
         <span>{action}</span>
