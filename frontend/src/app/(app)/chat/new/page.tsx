@@ -16,12 +16,10 @@ function NewChatSessionContent() {
 
     async function initializeSession() {
       try {
-        const url = serviceId
-          ? `/api/proxy/sessions/new?serviceId=${encodeURIComponent(serviceId)}`
-          : "/api/proxy/sessions/new";
-
-        const res = await fetch(url, {
+        const res = await fetch("/api/backend/sessions", {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ serviceId: serviceId || null }),
         });
 
         if (!res.ok) throw new Error("Failed to initialize session");

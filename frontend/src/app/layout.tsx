@@ -30,7 +30,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full", "font-sans", outfit.variable)}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("h-full", "font-sans", outfit.variable)}
+    >
       <body
         className={`${outfit.variable} ${sinhala.variable} ${tamil.variable} font-sans min-h-dvh flex flex-col bg-govbg`}
       >

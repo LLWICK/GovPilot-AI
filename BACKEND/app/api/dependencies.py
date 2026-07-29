@@ -2,20 +2,31 @@ import uuid
 from functools import lru_cache
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import get_settings
 from app.core.database import get_db
+from app.core.security import InvalidTokenError, decode_access_token
 from app.services.ai_service import AIService
 from app.services.legacy_langgraph_pipeline import LegacyLangGraphPipeline
-from app.services.session_service import DEVELOPMENT_USER_ID
 
 DatabaseSession = Annotated[AsyncSession, Depends(get_db)]
 
 
-async def get_current_user_id() -> uuid.UUID:
-    """Temporary development identity, replaced by verified authentication later."""
-    return DEVELOPMENT_USER_ID
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+async def get_current_user_id(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
+) -> uuid.UUID:
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Authentication required")
+    try:
+        return decode_access_token(credentials.credentials, get_settings().auth_secret)
+    except InvalidTokenError as exc:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token") from exc
 
 
 CurrentUserId = Annotated[uuid.UUID, Depends(get_current_user_id)]
