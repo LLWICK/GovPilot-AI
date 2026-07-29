@@ -10,15 +10,12 @@ import {
   Warning,
   Spinner,
   FileText,
-  Clock,
-  Flask,
 } from "@phosphor-icons/react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface Document {
   id: string;
   name: string;
-  status: "processing" | "verified" | "issue";
+  status: "pending" | "uploaded" | "processing" | "verified" | "issue";
   note?: string;
 }
 
@@ -39,7 +36,7 @@ export default function DocumentUploadPage({
   } = useQuery<Document[]>({
     queryKey: ["documents", sessionId],
     queryFn: async () => {
-      const res = await fetch(`/api/proxy/documents?sessionId=${sessionId}`);
+      const res = await fetch(`/api/backend/sessions/${sessionId}/documents`);
       if (!res.ok) throw new Error("Failed to fetch documents");
       return res.json();
     },
@@ -55,14 +52,13 @@ export default function DocumentUploadPage({
   // 2. Upload document mutation
   const uploadMutation = useMutation({
     mutationFn: async ({ docId, file }: { docId: string; file: File }) => {
-      const formData = new FormData();
-      formData.append("sessionId", sessionId);
-      formData.append("docId", docId);
-      formData.append("file", file);
-
-      const res = await fetch("/api/proxy/documents/upload", {
-        method: "POST",
-        body: formData,
+      const res = await fetch(`/api/backend/sessions/${sessionId}/documents/${docId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type,
+          "X-File-Name": encodeURIComponent(file.name),
+        },
+        body: file,
       });
 
       if (!res.ok) throw new Error("Upload failed");
@@ -107,22 +103,9 @@ export default function DocumentUploadPage({
           Document Verification Desk
         </h2>
         <p className="text-sm text-slate-500 dark:text-zinc-400 font-semibold">
-          Upload required documents for OCR checking and database verification.
+          Upload documents requested by the AI guidance pipeline. Files are stored securely with your application.
         </p>
       </div>
-
-      {/* Test helper instruction card using shadcn/ui */}
-      <Alert className="bg-amber-50 dark:bg-amber-950/20 border-amber-250 dark:border-amber-900 text-amber-800 dark:text-amber-200 rounded-2xl flex items-start gap-3 p-4">
-        <Flask className="w-5 h-5 flex-shrink-0 text-amber-600 mt-0.5" weight="fill" />
-        <div className="space-y-0.5">
-          <AlertTitle className="font-extrabold uppercase tracking-wider text-[11px] text-amber-700 dark:text-amber-400">
-            Developer Test Tip
-          </AlertTitle>
-          <AlertDescription className="leading-relaxed text-sm font-medium text-amber-850 dark:text-amber-200/90">
-            To simulate an OCR validation rejection (e.g. background issues or poor resolution), name your uploaded file to include the word <span className="font-bold underline">error</span> (e.g., <code className="bg-amber-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-amber-900 dark:text-amber-205">nic_error.jpg</code>).
-          </AlertDescription>
-        </div>
-      </Alert>
 
       {/* Checklist display */}
       {isLoading ? (
@@ -161,6 +144,10 @@ export default function DocumentUploadPage({
               StatusIcon = Spinner;
               statusBadge = "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900/60";
               statusLabel = "OCR Processing";
+            } else if (doc.status === "uploaded") {
+              containerClass = "border-blue-200 dark:border-blue-900/60 bg-blue-50/10 dark:bg-blue-950/5";
+              statusBadge = "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-900/60";
+              statusLabel = "Uploaded";
             } else {
               statusBadge = "bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border-slate-200 dark:border-zinc-700";
               statusLabel = "Pending Upload";

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -26,9 +27,36 @@ import { Ripple } from "@/components/ui/ripple";
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid";
 import { ResizableNavbar } from "@/components/ui/resizable-navbar";
 
+interface GovernmentService {
+  serviceId: string;
+  name: string;
+  agencyName: string;
+  description: string;
+  fee: string;
+  processingTime: string;
+}
+
+const SERVICE_ICONS = {
+  "passport-renewal": Notebook,
+  "nic-application": IdentificationCard,
+  "birth-cert-copy": FileText,
+};
+
 export default function MarketingPage() {
   const [lang, setLang] = useState<"en" | "si" | "ta">("en");
   const [searchQuery, setSearchQuery] = useState("");
+  const {
+    data: services,
+    isLoading: servicesLoading,
+    error: servicesError,
+  } = useQuery<GovernmentService[]>({
+    queryKey: ["government-services"],
+    queryFn: async () => {
+      const response = await fetch("/api/backend/services");
+      if (!response.ok) throw new Error("Failed to load services");
+      return response.json();
+    },
+  });
 
   const content = {
     en: {
@@ -179,11 +207,11 @@ export default function MarketingPage() {
     }
   };
 
-  const filteredServices = currentContent.services.filter(
+  const filteredServices = (services ?? []).filter(
     (s) =>
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.agency.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.desc.toLowerCase().includes(searchQuery.toLowerCase())
+      s.agencyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -264,7 +292,13 @@ export default function MarketingPage() {
             {currentContent.servicesHeading}
           </h2>
 
-          {filteredServices.length === 0 ? (
+          {servicesLoading ? (
+            <div className="h-48 rounded-2xl bg-white dark:bg-zinc-900 animate-pulse" />
+          ) : servicesError ? (
+            <div className="text-center py-12 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900 rounded-2xl text-rose-600 dark:text-rose-400">
+              The service directory is currently unavailable.
+            </div>
+          ) : filteredServices.length === 0 ? (
             <div className="text-center py-12 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 rounded-2xl text-slate-500 dark:text-zinc-500 shadow-sm">
               No matching government services found.
             </div>
@@ -319,16 +353,20 @@ export default function MarketingPage() {
               {/* Catalog Services */}
               {filteredServices.map((service) => (
                 <BentoCard
-                  key={service.id}
+                  key={service.serviceId}
                   name={service.name}
-                  description={service.desc}
+                  description={service.description}
                   className="col-span-3 md:col-span-1 bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-800"
-                  Icon={service.icon}
-                  href={`/chat/new?serviceId=${service.id}`}
+                  Icon={
+                    SERVICE_ICONS[
+                      service.serviceId as keyof typeof SERVICE_ICONS
+                    ] ?? FileText
+                  }
+                  href={`/chat/new?serviceId=${service.serviceId}`}
                   cta="Start Application"
                   background={
                     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-                      {service.id === "passport-renewal" ? (
+                      {service.serviceId === "passport-renewal" ? (
                         <div className="absolute -bottom-6 -right-6 w-36 h-28 border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/50 rounded-2xl transform rotate-12 p-4 flex flex-col justify-between">
                           <div className="flex items-center gap-1.5">
                             <div className="w-4 h-4 rounded bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-[7px] text-amber-600 dark:text-amber-500 font-black">P</div>
@@ -337,7 +375,7 @@ export default function MarketingPage() {
                           <div className="w-full h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
                           <div className="w-5/6 h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
                         </div>
-                      ) : service.id === "nic-application" ? (
+                      ) : service.serviceId === "nic-application" ? (
                         <div className="absolute -bottom-8 -right-8 w-44 h-28 border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/50 rounded-2xl transform -rotate-6 p-4 flex flex-col justify-between">
                           <div className="flex justify-between items-start">
                             <div className="w-20 h-1.5 bg-slate-200 dark:bg-zinc-850 rounded" />
@@ -365,7 +403,7 @@ export default function MarketingPage() {
                         </span>
                         <span className="text-[9px] font-bold text-slate-500 dark:text-zinc-500 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          <span>{service.time}</span>
+                          <span>{service.processingTime}</span>
                         </span>
                       </div>
                     </div>

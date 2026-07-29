@@ -36,11 +36,14 @@ contains development-only placeholders.
 
 ## Current API slice
 
+- `GET /api/v1/services`
 - `GET /api/v1/sessions`
 - `POST /api/v1/sessions`
 - `GET /api/v1/sessions/{session_id}`
 - `GET /api/v1/sessions/{session_id}/messages`
 - `POST /api/v1/sessions/{session_id}/messages`
+- `GET /api/v1/sessions/{session_id}/documents`
+- `PUT /api/v1/sessions/{session_id}/documents/{document_id}`
 
 Citizen registration and credential login are available at
 `POST /api/v1/auth/register` and `POST /api/v1/auth/login`. Passwords are

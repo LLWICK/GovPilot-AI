@@ -3,19 +3,17 @@
 import { useState } from "react";
 
 export interface StreamResponse {
-  reply_text: string;
-  cards?: any[];
-  current_step?: number;
-  total_steps?: number;
-  needs_clarification?: boolean;
+  assistantMessage: {
+    text: string;
+    cards?: any[];
+  };
+  needsClarification?: boolean;
 }
 
 export function useChatStream() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamText, setStreamText] = useState("");
   const [streamCards, setStreamCards] = useState<any[] | null>(null);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [totalSteps, setTotalSteps] = useState(5);
 
   const startStream = async (
     message: string,
@@ -27,14 +25,13 @@ export function useChatStream() {
     setStreamCards(null);
 
     try {
-      const response = await fetch("/api/proxy/chat/stream", {
+      const response = await fetch(`/api/backend/sessions/${sessionId}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          sessionId,
-          message,
+          content: message,
           language: "en",
         }),
       });
@@ -49,51 +46,11 @@ export function useChatStream() {
         );
       }
 
-      if (!response.body) {
-        throw new Error("No response body available for streaming");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let lastText = "";
-      let lastCards: any[] | undefined;
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-
-        // Keep the last partial line in the buffer
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (trimmed.startsWith("data: ")) {
-            const dataStr = trimmed.slice(6);
-            try {
-              const parsed: StreamResponse = JSON.parse(dataStr);
-              setStreamText(parsed.reply_text);
-              lastText = parsed.reply_text;
-
-              if (parsed.cards) {
-                setStreamCards(parsed.cards);
-                lastCards = parsed.cards;
-              }
-              if (parsed.current_step) {
-                setCurrentStep(parsed.current_step);
-              }
-              if (parsed.total_steps) {
-                setTotalSteps(parsed.total_steps);
-              }
-            } catch (e) {
-              console.error("Failed to parse SSE line:", trimmed, e);
-            }
-          }
-        }
-      }
+      const parsed = (await response.json()) as StreamResponse;
+      const lastText = parsed.assistantMessage.text;
+      const lastCards = parsed.assistantMessage.cards;
+      setStreamText(lastText);
+      setStreamCards(lastCards ?? null);
 
       if (onDone) {
         onDone(lastText, lastCards);
@@ -114,8 +71,6 @@ export function useChatStream() {
     isStreaming,
     streamText,
     streamCards,
-    currentStep,
-    totalSteps,
     startStream,
   };
 }

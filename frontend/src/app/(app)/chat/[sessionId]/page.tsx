@@ -61,8 +61,6 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
     isStreaming,
     streamText,
     streamCards,
-    currentStep,
-    totalSteps,
     startStream,
   } = useChatStream();
 
@@ -70,7 +68,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
   const { data: sessionInfo, refetch: refetchSession } = useQuery<SessionInfo>({
     queryKey: ["sessionInfo", sessionId],
     queryFn: async () => {
-      const res = await fetch(`/api/proxy/sessions/${sessionId}`);
+      const res = await fetch(`/api/backend/sessions/${sessionId}`);
       if (!res.ok) throw new Error("Failed to fetch session metadata");
       return res.json();
     },
@@ -80,7 +78,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
   const { data: chatHistory, refetch: refetchChat } = useQuery<Message[]>({
     queryKey: ["chatHistory", sessionId],
     queryFn: async () => {
-      const res = await fetch(`/api/proxy/chat/history?sessionId=${sessionId}`);
+      const res = await fetch(`/api/backend/sessions/${sessionId}/messages`);
       if (!res.ok) throw new Error("Failed to fetch chat history");
       return res.json();
     },
@@ -90,7 +88,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
   const { data: documents, refetch: refetchDocs } = useQuery<Document[]>({
     queryKey: ["documents", sessionId],
     queryFn: async () => {
-      const res = await fetch(`/api/proxy/documents?sessionId=${sessionId}`);
+      const res = await fetch(`/api/backend/sessions/${sessionId}/documents`);
       if (!res.ok) throw new Error("Failed to fetch documents");
       return res.json();
     },
@@ -143,8 +141,8 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
         
         <SessionHeader
           serviceName={sessionInfo?.serviceName || "GovPilot AI Portal"}
-          status={sessionInfo?.status || "Connecting..."}
-          progress={sessionInfo?.progress || 10}
+          status={sessionInfo?.status ?? "Loading application..."}
+          progress={sessionInfo?.progress ?? 0}
           agencyName={sessionInfo?.agencyName}
           onMenuToggle={() => setIsDrawerOpen(true)}
         />
