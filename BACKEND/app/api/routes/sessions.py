@@ -10,6 +10,7 @@ from app.services.ai_service import (
     PipelineNotConfiguredError,
     PipelineRuntimeConfigurationError,
 )
+from app.services.document_service import DocumentService
 from app.services.session_service import SessionService
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
@@ -123,6 +124,11 @@ async def create_message(
         user_id=user_id,
         sender="agent",
         content=ai_result.content,
+        cards=ai_result.cards,
+    )
+    await DocumentService(db).sync_from_ai_cards(
+        session_id=session_id,
+        user_id=user_id,
         cards=ai_result.cards,
     )
     needs_clarification = ai_result.status == "clarification_required"

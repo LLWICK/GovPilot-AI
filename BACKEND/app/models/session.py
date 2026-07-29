@@ -43,3 +43,9 @@ class CitizenSession(TimestampMixin, Base):
         cascade="all, delete-orphan",
         order_by="WorkflowStep.position",
     )
+    documents = relationship(
+        "RequiredDocument",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="RequiredDocument.created_at",
+    )

@@ -10,10 +10,10 @@ class Settings(BaseSettings):
     app_env: str = "development"
     api_v1_prefix: str = "/api/v1"
     frontend_origin: AnyHttpUrl = "http://localhost:3000"
+    auth_secret: str = "change-this-development-auth-secret"
+    access_token_ttl_seconds: int = 60 * 60 * 24
 
-    database_url: str = (
-        "postgresql+asyncpg://govpilot:govpilot_local@localhost:5432/govpilot"
-    )
+    database_url: str = "postgresql+asyncpg://govpilot:govpilot_local@localhost:5432/govpilot"
     checkpoint_database_path: Path = Path("data/langgraph-checkpoints.sqlite3")
     redis_url: str = "redis://localhost:6379/0"
 

@@ -11,9 +11,6 @@ import {
   Notebook,
   IdentificationCard,
   ChatCircleText,
-  BellRinging,
-  WarningCircle,
-  CalendarCheck
 } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { MagicCard } from "@/components/ui/magic-card";
@@ -30,58 +27,20 @@ interface SessionSummary {
   updatedAt: string;
 }
 
-const CATALOG_SERVICES = [
-  {
-    id: "passport-renewal",
-    name: "Passport Renewal",
-    agency: "Department of Immigration & Emigration",
-    fee: "LKR 10,000",
-    time: "3-5 Days",
-    desc: "Renew your passport online using Grama Niladhari and OCR civil registrations checks.",
-    icon: Notebook,
-  },
-  {
-    id: "nic-application",
-    name: "National Identity Card (NIC)",
-    agency: "Department of Registration of Persons",
-    fee: "LKR 2,000",
-    time: "7-10 Days",
-    desc: "Request a new or replacement National Identity Card (NIC). Checks biometrics data.",
-    icon: IdentificationCard,
-  },
-  {
-    id: "birth-cert-copy",
-    name: "Birth Certificate Copy",
-    agency: "Department of Registrar General",
-    fee: "LKR 1,500",
-    time: "2-3 Days",
-    desc: "Order certified duplicates of birth certificates from historical civil registries.",
-    icon: FileText,
-  },
-];
+interface GovernmentService {
+  serviceId: string;
+  name: string;
+  agencyName: string;
+  description: string;
+  fee: string;
+  processingTime: string;
+}
 
-const PROACTIVE_ALERTS = [
-  {
-    id: "alert-1",
-    type: "warning",
-    title: "Action Required: Missing Signature",
-    description: "Your Passport Renewal application requires an updated signature document. The previous upload was rejected by the Document Agent.",
-    icon: WarningCircle,
-    color: "text-amber-600 dark:text-amber-500",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20"
-  },
-  {
-    id: "alert-2",
-    type: "info",
-    title: "Upcoming Appointment",
-    description: "Biometric registration for NIC at Divisional Secretariat, Colombo 05 scheduled for Tomorrow at 10:30 AM.",
-    icon: CalendarCheck,
-    color: "text-blue-600 dark:text-blue-500",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20"
-  }
-];
+const SERVICE_ICONS = {
+  "passport-renewal": Notebook,
+  "nic-application": IdentificationCard,
+  "birth-cert-copy": FileText,
+};
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -104,8 +63,20 @@ export default function DashboardPage() {
   } = useQuery<SessionSummary[]>({
     queryKey: ["sessions"],
     queryFn: async () => {
-      const res = await fetch("/api/proxy/sessions");
+      const res = await fetch("/api/backend/sessions");
       if (!res.ok) throw new Error("Failed to fetch applications");
+      return res.json();
+    },
+  });
+  const {
+    data: services,
+    isLoading: servicesLoading,
+    error: servicesError,
+  } = useQuery<GovernmentService[]>({
+    queryKey: ["government-services"],
+    queryFn: async () => {
+      const res = await fetch("/api/backend/services");
+      if (!res.ok) throw new Error("Failed to fetch government services");
       return res.json();
     },
   });
@@ -128,7 +99,6 @@ export default function DashboardPage() {
           <div className="space-y-1">
             <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
               Citizen Workspace
-              <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-500 hover:bg-amber-500/20 border-amber-500/30 font-bold uppercase tracking-wider text-[10px] px-2 py-0.5">Verified</Badge>
             </h2>
             <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium">
               Track, resume, and request digital public services powered by GovPilot Agentic AI.
@@ -142,10 +112,10 @@ export default function DashboardPage() {
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="space-y-8">
           
           {/* Main Content Area (Active Apps) */}
-          <div className="xl:col-span-2 space-y-8">
+          <div className="space-y-8">
             
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight uppercase flex items-center gap-2">
@@ -196,7 +166,7 @@ export default function DashboardPage() {
                             Ref: {session.sessionId.split("-")[1] || session.sessionId}
                           </span>
                           <Badge className="bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-zinc-700 text-[10px] font-bold uppercase tracking-wider">
-                            Active
+                            {session.status}
                           </Badge>
                         </div>
                         <div>
@@ -250,49 +220,6 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Right Sidebar Area (Notifications & Quick Stats) */}
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight uppercase flex items-center gap-2">
-                <BellRinging className="w-5 h-5 text-amber-500" weight="duotone" />
-                Proactive Alerts
-              </h3>
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-[10px] font-bold text-amber-600 dark:text-amber-500">2</span>
-            </div>
-
-            <motion.div 
-              variants={containerVariants}
-              initial="hidden"
-              animate="show"
-              className="space-y-4"
-            >
-              {PROACTIVE_ALERTS.map((alert) => {
-                const Icon = alert.icon;
-                return (
-                  <motion.div variants={itemVariants} key={alert.id} className="relative rounded-2xl bg-white/80 dark:bg-zinc-900/40 border border-slate-200 dark:border-zinc-800 p-5 overflow-hidden group shadow-sm backdrop-blur-xl">
-                    <ShineBorder shineColor={alert.type === 'warning' ? '#f59e0b' : '#3b82f6'} borderWidth={1} className="opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative z-10 flex gap-4">
-                      <div className={`mt-0.5 flex-shrink-0 w-8 h-8 rounded-full ${alert.bg} ${alert.color} ${alert.border} border flex items-center justify-center`}>
-                        <Icon className="w-4 h-4" weight="fill" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{alert.title}</h4>
-                        <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-medium">
-                          {alert.description}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )
-              })}
-
-              <motion.div variants={itemVariants} className="rounded-2xl bg-white/50 dark:bg-zinc-900/30 border border-slate-200 dark:border-zinc-800/50 p-5 flex items-center justify-center text-center backdrop-blur-xl shadow-sm">
-                 <p className="text-xs text-slate-500 dark:text-zinc-500 font-medium leading-relaxed">
-                   The <span className="font-bold text-slate-700 dark:text-zinc-300">Notification Agent</span> monitors your applications and will alert you if action is required.
-                 </p>
-              </motion.div>
-            </motion.div>
-          </div>
         </div>
 
         {/* Service Catalog Directory Section */}
@@ -306,18 +233,26 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <motion.div 
+          {servicesLoading ? (
+            <div className="h-48 rounded-3xl bg-white/60 dark:bg-zinc-900/40 animate-pulse" />
+          ) : servicesError ? (
+            <div className="p-4 border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 rounded-2xl text-rose-600 dark:text-rose-400 font-medium text-sm">
+              Error loading the service directory.
+            </div>
+          ) : (
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {CATALOG_SERVICES.map((service) => {
-              const Icon = service.icon;
+            {(services ?? []).map((service) => {
+              const Icon =
+                SERVICE_ICONS[service.serviceId as keyof typeof SERVICE_ICONS] ?? FileText;
               return (
                 <motion.div
                   variants={itemVariants}
-                  key={service.id}
+                  key={service.serviceId}
                   className="group relative rounded-3xl bg-white/80 dark:bg-zinc-900/40 border border-slate-200 dark:border-zinc-800/60 p-6 flex flex-col justify-between space-y-6 hover:bg-white dark:hover:bg-zinc-800/40 transition-colors backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
                 >
                   <ShineBorder shineColor="#f59e0b" duration={10} className="opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -331,11 +266,11 @@ export default function DashboardPage() {
                         {service.name}
                       </h4>
                       <p className="text-[9px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-wider mt-1.5">
-                        {service.agency}
+                        {service.agencyName}
                       </p>
                     </div>
                     <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed font-medium">
-                      {service.desc}
+                      {service.description}
                     </p>
                   </div>
 
@@ -343,12 +278,12 @@ export default function DashboardPage() {
                     <div className="flex justify-between items-center text-xs font-bold bg-slate-50 dark:bg-zinc-950/50 p-3 rounded-xl border border-slate-200 dark:border-zinc-800/50 text-slate-500 dark:text-zinc-400 shadow-inner">
                       <span className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4 text-slate-400 dark:text-zinc-500" />
-                        {service.time}
+                        {service.processingTime}
                       </span>
                       <span className="text-amber-600 dark:text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">{service.fee}</span>
                     </div>
                     <Link
-                      href={`/chat/new?serviceId=${service.id}`}
+                      href={`/chat/new?serviceId=${service.serviceId}`}
                       className="w-full inline-flex items-center justify-center gap-2 h-11 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 active:scale-95 transition-all text-xs font-bold rounded-xl shadow-md dark:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
                     >
                       <span>Start Guided Flow</span>
@@ -359,6 +294,7 @@ export default function DashboardPage() {
               );
             })}
           </motion.div>
+          )}
         </div>
 
       </div>

@@ -4,10 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models import CitizenSession, Message, WorkflowStep
-from app.services.service_catalog import get_service
-
-DEVELOPMENT_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+from app.models import CitizenSession, GovernmentService, Message, WorkflowStep
 
 
 class SessionService:
@@ -45,16 +42,21 @@ class SessionService:
         user_id: uuid.UUID,
         service_id: str | None,
     ) -> CitizenSession:
-        definition = get_service(service_id)
+        selected_service_id = service_id or "general-dispatcher"
+        definition = await self.db.scalar(
+            select(GovernmentService).where(GovernmentService.service_id == selected_service_id)
+        )
+        if definition is None:
+            raise KeyError(selected_service_id)
         session = CitizenSession(
             user_id=user_id,
             service_id=definition.service_id,
-            service_name=definition.service_name,
+            service_name=definition.name,
             agency_name=definition.agency_name,
             status="Service Selection",
             progress=0,
             current_step=1,
-            total_steps=len(definition.steps),
+            total_steps=len(definition.workflow_steps),
         )
         session.steps = [
             WorkflowStep(
@@ -62,14 +64,14 @@ class SessionService:
                 label=label,
                 status="active" if position == 1 else "pending",
             )
-            for position, label in enumerate(definition.steps, start=1)
+            for position, label in enumerate(definition.workflow_steps, start=1)
         ]
         session.messages = [
             Message(
                 sender="agent",
                 content=(
                     f"Welcome to GovPilot AI. I can help you with "
-                    f"{definition.service_name}. What do you need to know?"
+                    f"{definition.name}. What do you need to know?"
                 ),
                 cards=[],
             )

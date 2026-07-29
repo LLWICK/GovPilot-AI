@@ -37,7 +37,7 @@ export default function RegisterPage() {
 
     try {
       const res = await signIn("credentials", {
-        email,
+        email: email.trim().toLowerCase(),
         password,
         redirect: false,
       });
@@ -67,17 +67,44 @@ export default function RegisterPage() {
       setLoading(false);
       return;
     }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      // Mock registration: immediately sign in using credentials provider
+      const registration = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fullName.trim(),
+          nic: cleanNic,
+          email: email.trim().toLowerCase(),
+          password,
+        }),
+      });
+
+      if (!registration.ok) {
+        const body = (await registration.json().catch(() => ({}))) as {
+          detail?: string | Array<{ msg?: string }>;
+        };
+        const detail = Array.isArray(body.detail)
+          ? body.detail[0]?.msg
+          : body.detail;
+        setError(detail ?? "Registration failed. Please verify your details and retry.");
+        return;
+      }
+
       const res = await signIn("credentials", {
-        email,
+        email: email.trim().toLowerCase(),
         password,
         redirect: false,
       });
 
       if (res?.error) {
-        setError("Registration succeeded but sign in failed. Please try signing in manually.");
+        setError("Your account was created. Please sign in with your new credentials.");
+        setMode("login");
       } else {
         router.push("/dashboard");
       }
@@ -138,6 +165,7 @@ export default function RegisterPage() {
                   <input
                     id="email"
                     type="email"
+                    autoComplete="email"
                     required
                     disabled={loading}
                     placeholder="name@domain.lk"
@@ -157,6 +185,7 @@ export default function RegisterPage() {
                   <input
                     id="password"
                     type="password"
+                    autoComplete="current-password"
                     required
                     disabled={loading}
                     placeholder="••••••••"
@@ -201,6 +230,7 @@ export default function RegisterPage() {
                   <input
                     id="fullName"
                     type="text"
+                    autoComplete="name"
                     required
                     disabled={loading}
                     placeholder="K. L. Perera"
@@ -239,6 +269,7 @@ export default function RegisterPage() {
                   <input
                     id="email"
                     type="email"
+                    autoComplete="email"
                     required
                     disabled={loading}
                     placeholder="name@domain.lk"
@@ -258,6 +289,8 @@ export default function RegisterPage() {
                   <input
                     id="password"
                     type="password"
+                    minLength={8}
+                    autoComplete="new-password"
                     required
                     disabled={loading}
                     placeholder="••••••••"

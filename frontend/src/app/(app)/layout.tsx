@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
@@ -9,17 +10,10 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    // Bypass login check for exploration mode, seed mock session
-    session = {
-      user: {
-        name: "K. L. Perera",
-        email: "citizen@gov.lk",
-      },
-      expires: new Date(Date.now() + 3600 * 1000).toISOString(),
-    };
+    redirect("/login");
   }
 
   return (
@@ -49,7 +43,7 @@ export default async function AppLayout({
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
               <span className="text-sm font-bold text-slate-100 block">
-                {session.user?.name || "K. L. Perera"}
+                {session.user?.name || "Citizen"}
               </span>
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">
                 Citizen Account

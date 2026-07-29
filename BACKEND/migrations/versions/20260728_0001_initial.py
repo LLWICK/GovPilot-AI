@@ -16,9 +16,6 @@ down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
-DEVELOPMENT_USER_ID = "00000000-0000-0000-0000-000000000001"
-
-
 def upgrade() -> None:
     op.create_table(
         "users",
@@ -154,24 +151,6 @@ def upgrade() -> None:
         ["session_id"],
         unique=False,
     )
-
-    users = sa.table(
-        "users",
-        sa.column("id", postgresql.UUID(as_uuid=True)),
-        sa.column("email", sa.String),
-        sa.column("name", sa.String),
-    )
-    op.bulk_insert(
-        users,
-        [
-            {
-                "id": DEVELOPMENT_USER_ID,
-                "email": "citizen@govpilot.local",
-                "name": "Development Citizen",
-            }
-        ],
-    )
-
 
 def downgrade() -> None:
     op.drop_index("ix_messages_session_id", table_name="messages")

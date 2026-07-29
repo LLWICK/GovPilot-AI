@@ -6,7 +6,7 @@ import { CheckCircle, Warning, Spinner, FileText } from "@phosphor-icons/react";
 export interface Document {
   id: string;
   name: string;
-  status: "processing" | "verified" | "issue";
+  status: "pending" | "uploaded" | "processing" | "verified" | "issue";
   note?: string;
 }
 

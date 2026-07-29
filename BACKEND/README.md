@@ -36,15 +36,19 @@ contains development-only placeholders.
 
 ## Current API slice
 
+- `GET /api/v1/services`
 - `GET /api/v1/sessions`
 - `POST /api/v1/sessions`
 - `GET /api/v1/sessions/{session_id}`
 - `GET /api/v1/sessions/{session_id}/messages`
 - `POST /api/v1/sessions/{session_id}/messages`
+- `GET /api/v1/sessions/{session_id}/documents`
+- `PUT /api/v1/sessions/{session_id}/documents/{document_id}`
 
-Authentication is intentionally represented by one seeded development citizen
-for this first vertical slice. Replace it with verified NextAuth/OIDC identity
-before exposing the API outside local development.
+Citizen registration and credential login are available at
+`POST /api/v1/auth/register` and `POST /api/v1/auth/login`. Passwords are
+stored as salted scrypt hashes. Session endpoints require the bearer token
+returned by login.
 
 `POST /messages` now invokes the existing `GenAI` LangGraph through a temporary
 compatibility adapter. The adapter will be removed after the agents are moved
