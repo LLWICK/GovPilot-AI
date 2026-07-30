@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Bank, SquaresFour, Sun, Moon } from "@phosphor-icons/react";
+import { Bank, Sun, Moon } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 
 interface NavItem {
@@ -13,12 +13,8 @@ interface NavItem {
 
 export const ResizableNavbar = ({
   navItems,
-  lang,
-  setLang,
 }: {
   navItems: NavItem[];
-  lang: "en" | "si" | "ta";
-  setLang: (lang: "en" | "si" | "ta") => void;
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -46,8 +42,9 @@ export const ResizableNavbar = ({
           : "w-full max-w-full top-0 rounded-none bg-white/80 dark:bg-zinc-950/80 border-slate-200/20 dark:border-zinc-900/20"
       )}
     >
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-850 flex items-center justify-center text-slate-900 dark:text-white shrink-0">
+      {/* Brand Logo */}
+      <div className="flex items-center gap-2.5 shrink-0 min-w-[120px]">
+        <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
           <Bank className="w-5 h-5 text-amber-500" weight="fill" />
         </div>
         <span
@@ -56,11 +53,12 @@ export const ResizableNavbar = ({
             isScrolled ? "opacity-0 w-0 scale-95 pointer-events-none overflow-hidden" : "opacity-100 w-auto scale-100"
           )}
         >
-          GovPilot AI
+          GovPilot
         </span>
       </div>
 
-      <nav className="flex items-center gap-4 sm:gap-6 text-xs font-bold text-slate-500 dark:text-zinc-400">
+      {/* Centered Navigation Links */}
+      <nav className="flex-1 flex items-center justify-center gap-6 text-xs sm:text-sm font-extrabold text-slate-600 dark:text-zinc-400">
         {navItems.map((item) => (
           <Link
             key={item.name}
@@ -72,34 +70,13 @@ export const ResizableNavbar = ({
         ))}
       </nav>
 
-      <div className="flex items-center gap-3 shrink-0">
-        {/* Language Switcher */}
-        <div
-          className={cn(
-            "flex items-center gap-1 bg-slate-100 dark:bg-zinc-900 p-1 rounded border border-slate-200 dark:border-zinc-800 transition-all duration-300",
-            isScrolled ? "opacity-0 w-0 scale-95 pointer-events-none overflow-hidden" : "opacity-100 w-auto scale-100"
-          )}
-        >
-          {["en", "si", "ta"].map((l) => (
-            <button
-              key={l}
-              onClick={() => setLang(l as "en" | "si" | "ta")}
-              className={`px-2 py-0.5 text-[9px] font-black rounded transition-all ${
-                lang === l
-                  ? "bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm"
-                  : "text-slate-500 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              {l === "en" ? "EN" : l === "si" ? "සිං" : "தமிழ்"}
-            </button>
-          ))}
-        </div>
-
+      {/* Right Action Controls */}
+      <div className="flex items-center gap-3 shrink-0 min-w-[120px] justify-end">
         {/* Theme Toggle */}
         {mounted && (
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="w-8 h-8 rounded border border-slate-200 dark:border-zinc-850 hover:bg-slate-100 dark:hover:bg-zinc-900 flex items-center justify-center text-slate-500 dark:text-zinc-400 transition-all bg-white dark:bg-zinc-950/40"
+            className="w-8.5 h-8.5 rounded-full border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-900 flex items-center justify-center text-slate-500 dark:text-zinc-400 transition-all bg-white/80 dark:bg-zinc-950/40"
             title="Toggle theme"
           >
             {theme === "dark" ? (
@@ -110,19 +87,12 @@ export const ResizableNavbar = ({
           </button>
         )}
 
+        {/* Primary CTA */}
         <Link
           href="/login"
-          className="inline-flex items-center gap-1.5 h-8 px-4 border border-slate-200 dark:border-zinc-850 hover:bg-slate-100 dark:hover:bg-zinc-900 rounded text-xs font-bold text-slate-900 dark:text-white transition-all bg-white dark:bg-zinc-950/40 shadow-sm dark:shadow-none"
+          className="inline-flex items-center justify-center h-9 px-4 bg-slate-900 dark:bg-zinc-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-zinc-950 rounded-full text-xs font-extrabold transition-all shadow-sm active:scale-95"
         >
-          <div className="w-4 h-4 rounded bg-amber-500 flex items-center justify-center text-white dark:text-slate-950">
-            <SquaresFour className="w-3 h-3" weight="fill" />
-          </div>
-          <span className={cn(
-            "transition-all duration-300",
-            isScrolled ? "opacity-0 w-0 scale-95 pointer-events-none overflow-hidden" : "opacity-100 w-auto scale-100 hidden sm:inline"
-          )}>
-            Open Workspace
-          </span>
+          <span>Chat with Agent</span>
         </Link>
       </div>
     </header>

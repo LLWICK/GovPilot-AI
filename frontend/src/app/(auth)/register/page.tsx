@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Ripple } from "@/components/ui/ripple";
 import { MagicCard } from "@/components/ui/magic-card";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,7 +27,6 @@ export default function RegisterPage() {
   const toggleMode = (newMode: "login" | "register") => {
     setMode(newMode);
     setError("");
-    // Update the browser URL dynamically without full page reload
     window.history.pushState(null, "", newMode === "login" ? "/login" : "/register");
   };
 
@@ -59,7 +59,6 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
-    // Validate NIC format (Sri Lankan NICs are 10 characters ending in V/X, or 12 digits)
     const cleanNic = nic.trim().toUpperCase();
     const nicRegex = /^([0-9]{9}[vVxX]|[0-9]{12})$/;
     if (!nicRegex.test(cleanNic)) {
@@ -116,37 +115,39 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="relative w-screen min-h-screen overflow-hidden bg-zinc-950 text-white font-sans flex select-none">
+    <div className="relative w-screen min-h-screen overflow-hidden bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-white font-sans flex select-none transition-colors duration-200">
       
+      {/* Floating Theme Toggle */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* 1. Form Container Panel */}
       <div
         className={cn(
-          "absolute inset-y-0 left-0 w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-16 lg:px-20 py-12 transition-transform duration-500 ease-in-out z-20 bg-zinc-950",
+          "absolute inset-y-0 left-0 w-full lg:w-1/2 flex flex-col justify-center items-center px-4 sm:px-12 lg:px-16 py-8 transition-transform duration-500 ease-in-out z-20 bg-slate-50 dark:bg-zinc-950 overflow-y-auto custom-scrollbar",
           mode === "register" ? "lg:translate-x-full" : "lg:translate-x-0"
         )}
       >
-        <MagicCard className="max-w-md w-full mx-auto bg-zinc-950/40 border border-zinc-850 p-6 md:p-8">
-          <div className="space-y-6">
+        <MagicCard className="max-w-md w-full mx-auto bg-white/90 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-850 p-5 sm:p-7 md:p-8 shadow-xl dark:shadow-none my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
+          <div className="space-y-5">
             {/* Logo & Header */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Link href="/" className="inline-flex items-center gap-2">
-                <div className="w-8 h-8 rounded bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                   <Bank className="w-5 h-5 text-amber-500" weight="fill" />
                 </div>
-                <span className="font-extrabold text-sm tracking-tight text-white">GovPilot AI</span>
+                <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">GovPilot AI</span>
               </Link>
-              <h2 className="text-3xl font-extrabold tracking-tight text-white pt-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white pt-1">
                 {mode === "login" ? "Sign In to Console" : "Create Citizen Account"}
               </h2>
-              <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                {mode === "login" ? "Official Sri Lanka Citizen Gateway" : "Sri Lankan Official Citizen Portal"}
-              </p>
             </div>
 
             {/* Error Callout */}
             {error && (
-              <div className="flex gap-2.5 p-4 rounded-xl border border-rose-950 bg-rose-950/20 text-rose-400 text-xs leading-relaxed">
-                <Warning className="w-5 h-5 flex-shrink-0 text-rose-500" weight="fill" />
+              <div className="flex gap-2.5 p-3.5 rounded-xl border border-rose-200 dark:border-rose-950 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-xs leading-relaxed">
+                <Warning className="w-4.5 h-4.5 flex-shrink-0 text-rose-500 mt-0.5" weight="fill" />
                 <p className="font-semibold">{error}</p>
               </div>
             )}
@@ -154,16 +155,16 @@ export default function RegisterPage() {
             {/* Forms Switcher */}
             {mode === "login" ? (
               /* Login Form */
-              <form onSubmit={handleLoginSubmit} className="space-y-5">
-                <div className="space-y-2">
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div className="space-y-1.5">
                   <label
-                    htmlFor="email"
-                    className="block text-xs font-bold text-zinc-400 uppercase tracking-wider"
+                    htmlFor="login-email"
+                    className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Email Address
                   </label>
                   <input
-                    id="email"
+                    id="login-email"
                     type="email"
                     autoComplete="email"
                     required
@@ -171,19 +172,19 @@ export default function RegisterPage() {
                     placeholder="name@domain.lk"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white placeholder-zinc-500 focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-sm disabled:opacity-60"
+                    className="w-full h-11 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-sm disabled:opacity-60"
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label
-                    htmlFor="password"
-                    className="block text-xs font-bold text-zinc-400 uppercase tracking-wider"
+                    htmlFor="login-password"
+                    className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Password
                   </label>
                   <input
-                    id="password"
+                    id="login-password"
                     type="password"
                     autoComplete="current-password"
                     required
@@ -191,7 +192,7 @@ export default function RegisterPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white placeholder-zinc-500 focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-sm disabled:opacity-60"
+                    className="w-full h-11 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-sm disabled:opacity-60"
                   />
                 </div>
 
@@ -200,18 +201,18 @@ export default function RegisterPage() {
                   type="submit"
                   disabled={loading}
                   containerClassName="w-full"
-                  className="w-full bg-zinc-900 text-white flex items-center justify-center gap-2 h-full disabled:opacity-40"
+                  className="w-full bg-slate-900 dark:bg-zinc-900 text-white flex items-center justify-center gap-2 h-full disabled:opacity-40 font-bold"
                 >
                   {loading ? "Authenticating..." : "Sign in"}
                   {!loading && <ArrowRight className="w-4 h-4 text-amber-500" weight="bold" />}
                 </HoverBorderGradient>
 
-                <div className="text-center text-xs font-bold text-zinc-500 uppercase tracking-wider pt-2">
+                <div className="text-center text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider pt-2">
                   New citizen?{" "}
                   <button
                     type="button"
                     onClick={() => toggleMode("register")}
-                    className="text-amber-500 hover:underline transition-all ml-1"
+                    className="text-amber-600 dark:text-amber-500 hover:underline transition-all ml-1 font-extrabold"
                   >
                     Register Account
                   </button>
@@ -219,11 +220,11 @@ export default function RegisterPage() {
               </form>
             ) : (
               /* Register Form */
-              <form onSubmit={handleRegisterSubmit} className="space-y-4">
-                <div className="space-y-1.5">
+              <form onSubmit={handleRegisterSubmit} className="space-y-3 sm:space-y-3.5">
+                <div className="space-y-1">
                   <label
                     htmlFor="fullName"
-                    className="block text-xs font-bold text-zinc-400 uppercase tracking-wider"
+                    className="block text-[11px] sm:text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Full Name (as in NIC)
                   </label>
@@ -236,14 +237,14 @@ export default function RegisterPage() {
                     placeholder="K. L. Perera"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white placeholder-zinc-500 focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-sm disabled:opacity-60"
+                    className="w-full h-10 sm:h-10.5 px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-xs sm:text-sm disabled:opacity-60"
                   />
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label
                     htmlFor="nic"
-                    className="block text-xs font-bold text-zinc-400 uppercase tracking-wider"
+                    className="block text-[11px] sm:text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     NIC Number
                   </label>
@@ -255,19 +256,19 @@ export default function RegisterPage() {
                     placeholder="e.g. 198428109283"
                     value={nic}
                     onChange={(e) => setNic(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white placeholder-zinc-500 focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-sm disabled:opacity-60"
+                    className="w-full h-10 sm:h-10.5 px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-xs sm:text-sm disabled:opacity-60"
                   />
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label
-                    htmlFor="email"
-                    className="block text-xs font-bold text-zinc-400 uppercase tracking-wider"
+                    htmlFor="register-email"
+                    className="block text-[11px] sm:text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Email Address
                   </label>
                   <input
-                    id="email"
+                    id="register-email"
                     type="email"
                     autoComplete="email"
                     required
@@ -275,19 +276,19 @@ export default function RegisterPage() {
                     placeholder="name@domain.lk"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white placeholder-zinc-500 focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-sm disabled:opacity-60"
+                    className="w-full h-10 sm:h-10.5 px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-xs sm:text-sm disabled:opacity-60"
                   />
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label
-                    htmlFor="password"
-                    className="block text-xs font-bold text-zinc-400 uppercase tracking-wider"
+                    htmlFor="register-password"
+                    className="block text-[11px] sm:text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Password
                   </label>
                   <input
-                    id="password"
+                    id="register-password"
                     type="password"
                     minLength={8}
                     autoComplete="new-password"
@@ -296,27 +297,29 @@ export default function RegisterPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-white placeholder-zinc-500 focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-sm disabled:opacity-60"
+                    className="w-full h-10 sm:h-10.5 px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-xs sm:text-sm disabled:opacity-60"
                   />
                 </div>
 
-                <HoverBorderGradient
-                  as="button"
-                  type="submit"
-                  disabled={loading}
-                  containerClassName="w-full"
-                  className="w-full bg-zinc-900 text-white flex items-center justify-center gap-2 h-full disabled:opacity-40"
-                >
-                  {loading ? "Registering..." : "Create Account"}
-                  {!loading && <ArrowRight className="w-4 h-4 text-amber-500" weight="bold" />}
-                </HoverBorderGradient>
+                <div className="pt-1">
+                  <HoverBorderGradient
+                    as="button"
+                    type="submit"
+                    disabled={loading}
+                    containerClassName="w-full"
+                    className="w-full bg-slate-900 dark:bg-zinc-900 text-white flex items-center justify-center gap-2 h-full disabled:opacity-40 font-bold"
+                  >
+                    {loading ? "Registering..." : "Create Account"}
+                    {!loading && <ArrowRight className="w-4 h-4 text-amber-500" weight="bold" />}
+                  </HoverBorderGradient>
+                </div>
 
-                <div className="text-center text-xs font-bold text-zinc-500 uppercase tracking-wider pt-2">
+                <div className="text-center text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider pt-1">
                   Already registered?{" "}
                   <button
                     type="button"
                     onClick={() => toggleMode("login")}
-                    className="text-amber-500 hover:underline transition-all ml-1"
+                    className="text-amber-600 dark:text-amber-500 hover:underline transition-all ml-1 font-extrabold"
                   >
                     Sign In
                   </button>
@@ -330,58 +333,55 @@ export default function RegisterPage() {
       {/* 2. Space Filler Panel */}
       <div
         className={cn(
-          "hidden lg:flex lg:w-1/2 flex-col justify-between p-12 bg-zinc-900/50 backdrop-blur-sm transition-all duration-500 ease-in-out z-10 overflow-hidden absolute top-0 bottom-0 h-full right-0",
+          "hidden lg:flex lg:w-1/2 flex-col justify-between p-10 lg:p-12 bg-slate-100/80 dark:bg-zinc-900/50 backdrop-blur-sm transition-all duration-500 ease-in-out z-10 overflow-hidden absolute top-0 bottom-0 h-full right-0",
           mode === "login"
-            ? "translate-x-0 border-l border-zinc-800/80 rounded-l-[2rem] rounded-r-none"
-            : "-translate-x-full border-r border-zinc-800/80 rounded-r-[2rem] rounded-l-none"
+            ? "translate-x-0 border-l border-slate-200/80 dark:border-zinc-800/80 rounded-l-[2rem] rounded-r-none"
+            : "-translate-x-full border-r border-slate-200/80 dark:border-zinc-800/80 rounded-r-[2rem] rounded-l-none"
         )}
       >
         {/* Magic UI Ripple Background */}
-        <Ripple className="opacity-40" />
+        <Ripple className="opacity-60 dark:opacity-30" />
 
-        {/* Top Header */}
-        <div className="relative z-10">
-          <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">
-            Government of Sri Lanka Civil Portal
+        {/* Top Header: Small Honest Badge */}
+        <div className="relative z-10 flex justify-center">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-zinc-400 bg-white/80 dark:bg-zinc-900/80 px-3.5 py-1 rounded-full border border-slate-200/80 dark:border-zinc-800/80 shadow-sm backdrop-blur-sm">
+            GovPilot AI — Built for Sri Lankan Government Services
           </span>
         </div>
 
-        {/* Central Display */}
-        <div className="relative z-10 space-y-6 max-w-sm">
-          <div className="w-12 h-12 rounded-xl bg-zinc-850 border border-zinc-800 text-amber-500 flex items-center justify-center">
-            <Bank className="w-6 h-6" weight="fill" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-2xl font-extrabold tracking-tight text-white leading-tight">
-              One Workspace. All Digital Public Services.
+        {/* Central Display: Concrete Capabilities & Live Product Preview */}
+        <div className="relative z-10 space-y-6 max-w-md mx-auto my-auto w-full">
+          
+          {/* Header */}
+          <div className="space-y-2 text-center">
+            <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+              One login. Every government service.
             </h3>
-            <p className="text-xs text-zinc-400 leading-relaxed font-semibold">
-              Enter details once. Track, review, and finalize passport renewals, NIC replacements, and civil records securely.
-            </p>
           </div>
 
-          {/* Checklist */}
-          <div className="space-y-2 pt-2 text-xs font-bold text-zinc-400">
-            <div className="flex items-center gap-2">
-              <Checks className="w-4 h-4 text-emerald-500" weight="bold" />
-              <span>Real-Time OCR Documents Check</span>
+          {/* Live Product Preview (Mock Agent Exchange) */}
+          <div className="bg-white/90 dark:bg-zinc-950/80 border border-slate-200/90 dark:border-zinc-800/90 rounded-2xl p-4 shadow-md space-y-3 text-xs backdrop-blur-md">
+            {/* User Prompt */}
+            <div className="flex justify-end">
+              <div className="bg-slate-200/90 dark:bg-zinc-800 text-slate-900 dark:text-zinc-100 rounded-2xl rounded-tr-xs px-3.5 py-2 font-medium max-w-[85%] leading-relaxed">
+                What documents do I need for a passport renewal?
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Checks className="w-4 h-4 text-emerald-500" weight="bold" />
-              <span>Direct Civil Registry Integration</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checks className="w-4 h-4 text-emerald-500" weight="bold" />
-              <span>Tracked Delivery Progress Monitor</span>
+
+            {/* Agent Exchange */}
+            <div className="flex gap-2.5 items-start">
+              <div className="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                <Bank className="w-3.5 h-3.5" weight="fill" />
+              </div>
+              <div className="bg-slate-100/90 dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 rounded-2xl rounded-tl-xs px-3.5 py-2 font-medium leading-relaxed max-w-[88%] border border-slate-200/50 dark:border-zinc-800/50">
+                You will need your current passport, NIC, and a digital photo. I can extract and verify them instantly via OCR.
+              </div>
             </div>
           </div>
+
         </div>
 
-        {/* Bottom branding footer */}
-        <div className="relative z-10 text-[9px] font-black uppercase tracking-wider text-zinc-550 flex items-center gap-1">
-          <Clock className="w-3.5 h-3.5" />
-          <span>Average Processing: 3 Business Days</span>
-        </div>
+
       </div>
 
     </div>

@@ -13,12 +13,13 @@ export function MagicCard({
   children,
   className,
   gradientSize = 260,
-  gradientColor = "rgba(245, 158, 11, 0.08)", // subtle saffron gold glow
+  gradientColor = "rgba(245, 158, 11, 0.08)",
   gradientOpacity = 0.8,
   ...props
 }: MagicCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const borderSpotlightRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -26,7 +27,13 @@ export function MagicCard({
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    setCoords({ x, y });
+
+    if (spotlightRef.current) {
+      spotlightRef.current.style.background = `radial-gradient(${gradientSize}px circle at ${x}px ${y}px, ${gradientColor}, transparent 80%)`;
+    }
+    if (borderSpotlightRef.current) {
+      borderSpotlightRef.current.style.backgroundImage = `radial-gradient(${gradientSize}px circle at ${x}px ${y}px, rgba(245, 158, 11, 0.35), transparent 80%)`;
+    }
   };
 
   return (
@@ -36,25 +43,25 @@ export function MagicCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "relative rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-950/80 backdrop-blur-md p-8 md:p-10 shadow-xl transition-all duration-300 w-full",
+        "relative rounded-3xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-950/80 p-8 md:p-10 shadow-xl transition-colors duration-200 w-full text-slate-900 dark:text-white",
         className
       )}
       {...props}
     >
       {/* Background Spotlight Layer */}
       <div
-        className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+        ref={spotlightRef}
+        className="pointer-events-none absolute inset-0 transition-opacity duration-200 will-change-[opacity]"
         style={{
           opacity: isHovered ? gradientOpacity : 0,
-          background: `radial-gradient(${gradientSize}px circle at ${coords.x}px ${coords.y}px, ${gradientColor}, transparent 80%)`,
         }}
       />
       {/* Borders Spotlight Layer using Masking */}
       <div
-        className="pointer-events-none absolute inset-0 border border-transparent rounded-[inherit] transition-opacity duration-300"
+        ref={borderSpotlightRef}
+        className="pointer-events-none absolute inset-0 border border-transparent rounded-[inherit] transition-opacity duration-200 will-change-[opacity]"
         style={{
           opacity: isHovered ? 1 : 0,
-          backgroundImage: `radial-gradient(${gradientSize}px circle at ${coords.x}px ${coords.y}px, rgba(245, 158, 11, 0.35), transparent 80%)`,
           mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           WebkitMaskComposite: "xor",

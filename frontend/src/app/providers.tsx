@@ -12,6 +12,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             refetchOnWindowFocus: false,
+            staleTime: 1000 * 60 * 3, // 3 minutes stale time for instant page loads
+            gcTime: 1000 * 60 * 15, // 15 minutes cache time
           },
         },
       })

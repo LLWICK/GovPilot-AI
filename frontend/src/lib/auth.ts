@@ -16,7 +16,7 @@ interface LoginResponse {
 }
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "govpilot-dev-secret-key-331200",
   providers: [
     CredentialsProvider({
       name: "Credentials",

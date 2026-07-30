@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
-import { List, SidebarSimple } from "@phosphor-icons/react";
+import { List, SidebarSimple, Bank } from "@phosphor-icons/react";
+import Link from "next/link";
 
 interface SessionHeaderProps {
   serviceName: string;
@@ -21,50 +24,42 @@ export default function SessionHeader({
   isSidebarOpen = true,
 }: SessionHeaderProps) {
   return (
-    <div className="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 px-4 py-3 shadow-sm flex flex-col gap-2 w-full flex-shrink-0">
+    <div className="bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-slate-200/20 dark:border-zinc-900/40 px-4 sm:px-6 py-3 flex flex-col gap-2.5 w-full flex-shrink-0 transition-colors duration-200">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           {onMenuToggle && (
             <button
               onClick={onMenuToggle}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-amber-500 focus:ring-offset-2"
+              className="md:hidden p-1.5 rounded border border-slate-200 dark:border-zinc-850 hover:bg-slate-100 dark:hover:bg-zinc-900 text-slate-500 dark:text-zinc-400 focus:outline-none"
               aria-label="Toggle workflow status drawer"
             >
-              <List className="w-6 h-6" weight="bold" />
+              <List className="w-4 h-4" weight="bold" />
             </button>
           )}
+
+          <div className="w-8 h-8 rounded bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
+            <Bank className="w-4.5 h-4.5" weight="fill" />
+          </div>
+
           <div>
-            <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
+            <h1 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
               {serviceName}
             </h1>
-            <p className="text-[10px] sm:text-xs text-slate-400 dark:text-zinc-400 font-bold uppercase tracking-wider">
-              {agencyName || "Sri Lankan Government Services"}
+            <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider">
+              {agencyName || "GOVERNMENT OF SRI LANKA"}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <span
-            className={`inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full ${
-              status === "Completed"
-                ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
-                : status === "Review & Final Confirm" ||
-                  status === "Review & Confirm"
-                ? "bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                : "bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
-            }`}
-          >
-            {status}
-          </span>
-
           {onSidebarToggle && (
             <button
               type="button"
               onClick={onSidebarToggle}
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 transition-colors focus:outline-none"
+              className="hidden md:inline-flex items-center gap-1.5 h-8 px-3 border border-slate-200 dark:border-zinc-850 hover:bg-slate-100 dark:hover:bg-zinc-900 rounded text-xs font-bold text-slate-700 dark:text-zinc-300 transition-all bg-white dark:bg-zinc-950/40 focus:outline-none"
               title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             >
-              <SidebarSimple className="w-4 h-4" weight="bold" />
+              <SidebarSimple className="w-3.5 h-3.5" weight="bold" />
               <span>{isSidebarOpen ? "Hide Steps" : "Show Steps"}</span>
             </button>
           )}
@@ -74,13 +69,13 @@ export default function SessionHeader({
       {/* Progress Bar (Only rendered when progress > 0) */}
       {progress > 0 && (
         <div className="space-y-1 pt-1">
-          <div className="flex justify-between text-xs font-semibold text-slate-500 dark:text-zinc-400">
+          <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-zinc-400">
             <span>Application Progress</span>
-            <span>{progress}%</span>
+            <span className="text-amber-600 dark:text-amber-400 font-extrabold">{progress}%</span>
           </div>
-          <div className="w-full bg-slate-100 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-slate-100 dark:bg-zinc-900 h-2 rounded-full overflow-hidden border border-slate-200/40 dark:border-zinc-800/40">
             <div
-              className="bg-primary dark:bg-amber-500 h-full rounded-full transition-all duration-500 ease-out"
+              className="bg-amber-500 h-full rounded-full transition-all duration-500 ease-out shadow-sm"
               style={{ width: `${progress}%` }}
             />
           </div>

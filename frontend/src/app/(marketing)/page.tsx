@@ -220,8 +220,6 @@ export default function MarketingPage() {
     }`}>
       {/* Resizable Floating Navbar */}
       <ResizableNavbar
-        lang={lang}
-        setLang={setLang}
         navItems={[
           { name: "Services", link: "#services" },
           { name: "FAQ", link: "#faq" },
@@ -233,7 +231,7 @@ export default function MarketingPage() {
       <section className="relative min-h-[92vh] flex flex-col justify-center items-center px-6 lg:px-12 bg-slate-50 dark:bg-zinc-950 overflow-hidden border-b border-slate-200 dark:border-zinc-900/50">
         
         {/* Magic UI Ripple Background */}
-        <Ripple className="opacity-40 dark:opacity-70" />
+        <Ripple className="opacity-90 dark:opacity-80" />
         
         {/* Center luminous radial glow overlay to make it much brighter */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.02)_0%,transparent_65%)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,transparent_65%)] pointer-events-none" />
@@ -251,12 +249,9 @@ export default function MarketingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 w-full">
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-2 h-11 px-5 border border-slate-300 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-900 rounded font-bold text-xs text-slate-900 dark:text-white transition-all active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 h-11 px-5 border border-slate-300 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-900 rounded-full font-extrabold text-xs text-slate-900 dark:text-white transition-all active:scale-[0.98] shadow-sm bg-white dark:bg-zinc-950"
             >
-              <div className="w-5 h-5 rounded bg-amber-500 flex items-center justify-center text-white dark:text-slate-950">
-                <SquaresFour className="w-3.5 h-3.5" weight="fill" />
-              </div>
-              <span>Open Workspace</span>
+              <span>Chat with Agent</span>
             </Link>
 
             <a
