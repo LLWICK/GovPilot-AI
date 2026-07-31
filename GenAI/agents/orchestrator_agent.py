@@ -45,7 +45,8 @@ def orchestrator_agent(state: GovPilotState)-> GovPilotState:
                 
                 "parsed_intent": intent,
                 "next_agent": "web_discovery_agent",   # wait for user reply
-                "final_response": question
+                "messages": [combined_query]
+               
             }
         
         return {

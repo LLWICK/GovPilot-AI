@@ -39,6 +39,7 @@ async def health():
 
 @app.post("/query", response_model=QueryResponse)
 async def query_govpilot(request: QueryRequest):
+    print(f"thread_id received: {request.thread_id!r}")
     config = {"configurable": {"thread_id": request.thread_id}}
 
     result = await builder.ainvoke(
@@ -60,6 +61,7 @@ class ResumeRequest(BaseModel):
 
 @app.post("/resume", response_model=QueryResponse)
 async def resume_query(request: ResumeRequest):
+    print(f"Resume thread_id received: {request.thread_id!r}")
     config = {"configurable": {"thread_id": request.thread_id}}
 
     result = await builder.ainvoke(Command(resume=request.answer), config=config)

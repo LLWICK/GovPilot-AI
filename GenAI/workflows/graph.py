@@ -13,6 +13,7 @@ from agents.orchestrator_agent import orchestrator_agent
 from agents.regulation_agent import regulation_agent
 from agents.web_discovery_agent import discovery_agent
 from agents.guidance_agent import guidance_agent
+from agents.followup_chat_agent import followup_chat_agent
 from states.agent_state import GovPilotState
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -28,6 +29,7 @@ graph.add_node("orchestrator_agent", orchestrator_agent)
 graph.add_node("web_discovery_agent", discovery_agent)
 graph.add_node("regulation_agent", regulation_agent)
 graph.add_node("guidance_agent", guidance_agent)
+graph.add_node("followup_chat_agent", followup_chat_agent)
 graph.add_edge(START, "orchestrator_agent")
 
 graph.add_conditional_edges(
@@ -37,6 +39,7 @@ graph.add_conditional_edges(
             "web_discovery_agent": "web_discovery_agent",
             "regulation_agent": "regulation_agent",
             "guidance_agent" : "guidance_agent",
+            "followup_chat_agent" : "followup_chat_agent",
             
             END: END
         }
@@ -45,7 +48,8 @@ graph.add_conditional_edges(
 
 graph.add_edge("regulation_agent", "orchestrator_agent")
 graph.add_edge("web_discovery_agent", "orchestrator_agent")
-graph.add_edge("guidance_agent", "orchestrator_agent")
+graph.add_edge("guidance_agent", END)
+graph.add_edge("followup_chat_agent", END)
 
 
 builder = graph.compile(checkpointer=checkpointer)

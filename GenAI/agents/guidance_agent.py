@@ -66,7 +66,8 @@ async def guidance_agent(state: GovPilotState) -> dict:
 
     return {
         "guidance_agent_output": guidance_output.model_dump(),
-        "final_response": render_guidance_text(guidance_output),  # keep a string version too
+        "final_response": render_guidance_text(guidance_output),  
+        "pipeline_complete": True
     }
 
 

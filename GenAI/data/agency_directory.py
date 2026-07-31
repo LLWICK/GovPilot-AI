@@ -7,10 +7,16 @@ FORM_DIRECTORY = {
         "relevance_reason": "Official page listing NIC application requirements and forms",
         "scrapable": True,  # confirmed static HTML, tested and working
     },
-    "birth_certificate": {
+    "birth_certificate_copies": {
         "agency_name": "Registrar General's Department",
         "url": "https://www.rgd.gov.lk/web/index.php/en/e-services/e-bmd/request-certified-copies-of-birth-marriage-and-death-certificates-online",
-        "relevance_reason": "Official page for requesting certified birth certificates",
+        "relevance_reason": "Official page for requesting copies of certified birth certificates in Sri Lanka",
+        "scrapable": True,
+    },
+    "new_birth_certificate_registration": {
+        "agency_name": "Registrar General's Department",
+        "url": "https://www.rgd.gov.lk/web/index.php/en/services/civil-registration/birth/registration-of-unregistered-birth",
+        "relevance_reason": "Official page for registering an unregistered birth",
         "scrapable": True,
     },
     "business_registration": {
