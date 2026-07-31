@@ -12,7 +12,8 @@ from states.agent_state import GovPilotState
 def route_to_next_agent(state: GovPilotState) -> dict:
     """Determines the next agent in the pipeline."""
     
-    # No eligibility check yet → Regulation Agent
+    if state.get("pipeline_complete") and state.get("Regulation_agent_output"):
+        return {"next_agent": "followup_chat_agent"}
 
     if not state.get("web_discovery_agent_output"):
         return {"next_agent": "web_discovery_agent"}

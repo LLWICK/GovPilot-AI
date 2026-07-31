@@ -91,6 +91,10 @@ class GovPilotState(TypedDict):
 
     guidance_agent_output: Optional[GuidanceOutput]
 
+    #── pipeline completion ─────────────────────────────────────────
+
+    pipeline_complete: bool
+
     # ── Regulation & Eligibility ─────────────────────────────────
     fetched_regulations: list[dict]    # raw chunks from FAISS
     eligibility: Optional[EligibilityResult]
