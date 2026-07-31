@@ -26,6 +26,29 @@ def route_to_next_agent(state: GovPilotState) -> dict:
         return {"next_agent": "regulation_agent"}
 
     if not state.get("guidance_agent_output"):
+        regulation = state["Regulation_agent_output"]
+        retrieval_status = (
+            regulation.get("retrieval_status")
+            if isinstance(regulation, dict)
+            else regulation.retrieval_status
+        )
+        if retrieval_status == "not_found":
+            return {
+                "next_agent": None,
+                "final_response": (
+                    "I found the responsible agency, but its official online resource "
+                    "was not available, so I could not verify the current requirements. "
+                    "Please try again later or contact the agency directly."
+                ),
+            }
+        if retrieval_status == "error":
+            return {
+                "next_agent": None,
+                "final_response": (
+                    "I could not safely retrieve verified guidance from the official "
+                    "source. Please try again later."
+                ),
+            }
         return {"next_agent": "guidance_agent"}
 
     

@@ -1,0 +1,82 @@
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+
+const BACKEND_URL = (
+  process.env.BACKEND_URL ?? "http://127.0.0.1:8000/api/v1"
+).replace(/\/$/, "");
+
+interface LoginResponse {
+  accessToken: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    nic: string;
+  };
+}
+
+export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || "govpilot-dev-secret-key-331200",
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials.password) {
+          return null;
+        }
+
+        const response = await fetch(`${BACKEND_URL}/auth/login`, {
+          method: "POST",
+          cache: "no-store",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: credentials.email,
+            password: credentials.password,
+          }),
+        });
+
+        if (!response.ok) {
+          return null;
+        }
+
+        const result = (await response.json()) as LoginResponse;
+        return {
+          id: result.user.id,
+          name: result.user.name,
+          email: result.user.email,
+          accessToken: result.accessToken,
+          nic: result.user.nic,
+        };
+      },
+    }),
+  ],
+  pages: {
+    signIn: "/login",
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60,
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.accessToken = user.accessToken;
+        token.nic = user.nic;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id;
+        session.user.nic = token.nic;
+      }
+      session.accessToken = token.accessToken;
+      return session;
+    },
+  },
+};

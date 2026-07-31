@@ -1,6 +1,7 @@
 from pyexpat import model
 import sys
 import os
+import json
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # Get the path to the parent directory (one level up)
 parent_dir = os.path.dirname(current_dir)
@@ -23,7 +24,10 @@ load_dotenv()
 
 logger = get_logger("regulation_agent")
 
-llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0.0) 
+llm = ChatGroq(
+    model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+    temperature=0.0,
+)
 llm_tools = llm.bind_tools(RA_TOOLS)
 #llm = ChatOpenRouter(model = "openai/gpt-oss-20b:free")
 
@@ -79,7 +83,14 @@ async def regulation_agent(state: GovPilotState) -> dict:
         
 
         try:
-            parsed = JsonOutputParser().parse(final_text)
+            try:
+                parsed = JsonOutputParser().parse(final_text)
+            except Exception:
+                json_start = final_text.find("{")
+                json_end = final_text.rfind("}")
+                if json_start < 0 or json_end <= json_start:
+                    raise
+                parsed = json.loads(final_text[json_start : json_end + 1])
             ra_output = RAOutput.model_validate(parsed)
         except Exception as e:
             logger.error(f"RA parse failed: {e}\nRaw output: {final_text}")

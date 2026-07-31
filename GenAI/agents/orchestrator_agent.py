@@ -19,7 +19,7 @@ load_dotenv()
 
 logger = get_logger("orchestrator_agent")
 
-llm = ChatGroq(model="openai/gpt-oss-120b")
+llm = ChatGroq(model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"))
 
 def orchestrator_agent(state: GovPilotState)-> GovPilotState:
 
@@ -42,11 +42,9 @@ def orchestrator_agent(state: GovPilotState)-> GovPilotState:
             intent = chain.invoke({"question": combined_query})
 
             return {
-                
+                "messages": [combined_query],
                 "parsed_intent": intent,
-                "next_agent": "web_discovery_agent",   # wait for user reply
-                "messages": [combined_query]
-               
+                "next_agent": "web_discovery_agent",
             }
         
         return {
