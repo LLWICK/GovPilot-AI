@@ -27,7 +27,7 @@ FORM_DIRECTORY = {
     },
     "passport_application": {
         "agency_name": "Department of Immigration and Emigration",
-        "url": "https://eservices.immigration.gov.lk/onlinetd/OnlineTD/",
+        "url": "https://www.immigration.gov.lk/pages_e.php?id=8",
         "relevance_reason": "Online passport application portal",
         "scrapable": True,  # this one is an online_portal case, not a downloadable form — RA already handles this distinction
     },
