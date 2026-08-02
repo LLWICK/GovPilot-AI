@@ -26,6 +26,17 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     groq_model: str = "llama-3.3-70b-versatile"
 
+    # SMTP & Email Settings
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    emails_from_email: str = "noreply@govpilot.lk"
+    emails_from_name: str = "GovPilot AI"
+
+    # Google OAuth
+    google_client_id: str = "718295855827-cu75ds1qlnfb4gsmbr58qbnp6c8kh5t1.apps.googleusercontent.com"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

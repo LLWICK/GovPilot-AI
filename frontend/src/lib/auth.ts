@@ -1,23 +1,30 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 const BACKEND_URL = (
   process.env.BACKEND_URL ?? "http://127.0.0.1:8000/api/v1"
 ).replace(/\/$/, "");
 
-interface LoginResponse {
+interface BackendAuthResponse {
   accessToken: string;
   user: {
     id: string;
     name: string;
     email: string;
-    nic: string;
+    nic?: string;
+    isVerified?: boolean;
+    authProvider?: string;
   };
 }
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || "govpilot-dev-secret-key-331200",
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -43,13 +50,13 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const result = (await response.json()) as LoginResponse;
+        const result = (await response.json()) as BackendAuthResponse;
         return {
           id: result.user.id,
           name: result.user.name,
           email: result.user.email,
           accessToken: result.accessToken,
-          nic: result.user.nic,
+          nic: result.user.nic ?? "",
         };
       },
     }),
@@ -62,11 +69,51 @@ export const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60,
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ account, profile }) {
+      if (account?.provider === "google" && profile?.email) {
+        try {
+          const res = await fetch(`${BACKEND_URL}/auth/google`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: profile.email,
+              name: profile.name || profile.email.split("@")[0],
+              google_id: account.providerAccountId,
+            }),
+          });
+          if (res.ok) {
+            const data = (await res.json()) as BackendAuthResponse;
+            account.backendAccessToken = data.accessToken;
+            account.backendUserId = data.user.id;
+            account.backendNic = data.user.nic ?? "";
+            return true;
+          } else {
+            console.error("Backend Google Auth failed with status:", res.status);
+            return false;
+          }
+        } catch (err) {
+          console.error("Failed to sync Google user with backend:", err);
+          return false;
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
         token.accessToken = user.accessToken;
         token.nic = user.nic;
+      }
+      if (account?.provider === "google") {
+        if (account.backendAccessToken) {
+          token.accessToken = account.backendAccessToken as string;
+        }
+        if (account.backendUserId) {
+          token.id = account.backendUserId as string;
+        }
+        if (account.backendNic) {
+          token.nic = account.backendNic as string;
+        }
       }
       return token;
     },
