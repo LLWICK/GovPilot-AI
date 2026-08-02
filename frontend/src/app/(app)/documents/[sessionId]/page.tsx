@@ -57,14 +57,16 @@ export default function DocumentUploadPage({
   const uploadMutation = useMutation({
     mutationFn: async ({ docId, file }: { docId: string; file: File }) => {
       setUploadingDocId(docId);
-      const formData = new FormData();
-      formData.append("file", file);
 
       const res = await fetch(
-        `/api/backend/sessions/${sessionId}/documents/${docId}/upload`,
+        `/api/backend/sessions/${sessionId}/documents/${docId}`,
         {
-          method: "POST",
-          body: formData,
+          method: "PUT",
+          headers: {
+            "Content-Type": file.type || "application/pdf",
+            "x-file-name": encodeURIComponent(file.name),
+          },
+          body: file,
         }
       );
 
