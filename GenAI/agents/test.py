@@ -10,13 +10,12 @@ sys.path.append(parent_dir)
 
 
 import asyncio
-from agents.guidance_agent import guidance_agent
-
+from document_agent import document_agent_node
 from testing.json_test import RA_output
 
-async def main():
-    fake_state = {"Regulation_agent_output": RA_output}
-    result = await guidance_agent(fake_state)
-    print(result["final_response"])
+
+async def main(): 
+    result = await document_agent_node(RA_output)
+    print(result)
 
 asyncio.run(main())

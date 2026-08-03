@@ -87,6 +87,8 @@ class GovPilotState(TypedDict):
 
     document_agent_output: Optional[DAOutput]
 
+    Document_agent_output: str
+
     #── guidance agent analysis ─────────────────────────────────────────
 
     guidance_agent_output: Optional[GuidanceOutput]
