@@ -446,37 +446,37 @@ export default function LoginPage() {
       {/* 1. Form Container Panel */}
       <div
         className={cn(
-          "absolute inset-y-0 left-0 w-full lg:w-1/2 flex flex-col justify-center items-center px-4 sm:px-12 py-6 sm:py-8 transition-transform duration-500 ease-in-out z-20 bg-slate-50 dark:bg-zinc-950",
+          "absolute inset-y-0 left-0 w-full lg:w-1/2 flex flex-col justify-center items-center px-4 sm:px-10 py-4 sm:py-6 transition-transform duration-500 ease-in-out z-20 bg-slate-50 dark:bg-zinc-950 overflow-y-auto",
           mode === "register" ? "lg:translate-x-full" : "lg:translate-x-0"
         )}
       >
-        <MagicCard className="max-w-md w-full mx-auto bg-white/90 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-850 p-6 sm:p-8 md:p-9 shadow-xl dark:shadow-none my-auto">
-          <div className="space-y-4 sm:space-y-5">
+        <MagicCard className="max-w-md w-full mx-auto bg-white/90 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-850 p-5 sm:p-6 md:p-7 shadow-xl dark:shadow-none my-auto max-h-[96vh] overflow-y-auto">
+          <div className="space-y-3.5 sm:space-y-4">
             {/* Logo & Header */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Link href="/" className="inline-flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                  <Bank className="w-5 h-5 text-amber-500" weight="fill" />
+                <div className="w-7.5 h-7.5 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                  <Bank className="w-4 h-4 text-amber-500" weight="fill" />
                 </div>
-                <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">GovPilot AI</span>
+                <span className="font-extrabold text-xs tracking-tight text-slate-900 dark:text-white">GovPilot AI</span>
               </Link>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white pt-1">
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white pt-0.5">
                 {mode === "login" ? "Sign In to Console" : "Create Account"}
               </h2>
             </div>
 
             {/* Success Callout */}
             {successMessage && (
-              <div className="flex gap-2.5 p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-950 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs leading-relaxed">
-                <Check className="w-4.5 h-4.5 flex-shrink-0 text-emerald-500 mt-0.5" weight="bold" />
+              <div className="flex gap-2.5 p-3 rounded-xl border border-emerald-200 dark:border-emerald-950 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs leading-relaxed">
+                <Check className="w-4 h-4 flex-shrink-0 text-emerald-500 mt-0.5" weight="bold" />
                 <p className="font-semibold">{successMessage}</p>
               </div>
             )}
 
             {/* Error Callout */}
             {error && (
-              <div className="flex gap-2.5 p-3.5 rounded-xl border border-rose-200 dark:border-rose-950 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-xs leading-relaxed">
-                <Warning className="w-4.5 h-4.5 flex-shrink-0 text-rose-500 mt-0.5" weight="fill" />
+              <div className="flex gap-2.5 p-3 rounded-xl border border-rose-200 dark:border-rose-950 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-xs leading-relaxed">
+                <Warning className="w-4 h-4 flex-shrink-0 text-rose-500 mt-0.5" weight="fill" />
                 <p className="font-semibold">{error}</p>
               </div>
             )}
@@ -486,15 +486,15 @@ export default function LoginPage() {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={googleLoading || loading}
-              className="w-full h-11 sm:h-11.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-bold text-xs sm:text-sm flex items-center justify-center transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+              className="w-full h-[42px] rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-bold text-xs sm:text-sm flex items-center justify-center transition-all shadow-sm disabled:opacity-50 cursor-pointer"
             >
               <GoogleIcon />
               {googleLoading ? "Connecting..." : `Continue with Google`}
             </button>
 
-            <div className="relative flex items-center my-3">
+            <div className="relative flex items-center my-2.5">
               <div className="flex-grow border-t border-slate-200 dark:border-zinc-800"></div>
-              <span className="flex-shrink mx-3 text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-600 tracking-wider">
+              <span className="flex-shrink mx-3 text-[9.5px] uppercase font-bold text-slate-400 dark:text-zinc-600 tracking-wider">
                 Or with email
               </span>
               <div className="flex-grow border-t border-slate-200 dark:border-zinc-800"></div>
@@ -503,11 +503,11 @@ export default function LoginPage() {
             {/* Forms Switcher */}
             {mode === "login" ? (
               /* Login Form */
-              <form onSubmit={handleLoginSubmit} className="space-y-4 sm:space-y-4.5">
-                <div className="space-y-1.5">
+              <form onSubmit={handleLoginSubmit} className="space-y-3.5">
+                <div className="space-y-1">
                   <label
                     htmlFor="login-email"
-                    className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
+                    className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Email Address
                   </label>
@@ -520,15 +520,15 @@ export default function LoginPage() {
                     placeholder="name@domain.lk"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-xs sm:text-sm disabled:opacity-60"
+                    className="w-full h-[42px] px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-xs sm:text-sm disabled:opacity-60"
                   />
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <div className="flex justify-between items-center">
                     <label
                       htmlFor="login-password"
-                      className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
+                      className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                     >
                       Password
                     </label>
@@ -540,7 +540,7 @@ export default function LoginPage() {
                         setResetError("");
                         setShowResetModal(true);
                       }}
-                      className="text-xs font-bold text-amber-600 dark:text-amber-500 hover:underline"
+                      className="text-[11px] font-bold text-amber-600 dark:text-amber-500 hover:underline"
                     >
                       Forgot password?
                     </button>
@@ -554,17 +554,17 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 transition-all text-xs sm:text-sm disabled:opacity-60"
+                    className="w-full h-[42px] px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-xs sm:text-sm disabled:opacity-60"
                   />
                 </div>
 
-                <div className="pt-1">
+                <div className="pt-0.5">
                   <HoverBorderGradient
                     as="button"
                     type="submit"
                     disabled={loading}
                     containerClassName="w-full"
-                    className="w-full bg-slate-900 dark:bg-zinc-900 text-white flex items-center justify-center gap-2 h-11 rounded-xl disabled:opacity-40 font-bold text-xs sm:text-sm"
+                    className="w-full bg-slate-900 dark:bg-zinc-900 text-white flex items-center justify-center gap-2 h-[42px] rounded-xl disabled:opacity-40 font-bold text-xs sm:text-sm"
                   >
                     {loading ? "Authenticating..." : "Sign in"}
                     {!loading && <ArrowRight className="w-4 h-4 text-amber-500" weight="bold" />}
@@ -584,13 +584,13 @@ export default function LoginPage() {
               </form>
             ) : (
               /* Register Form */
-              <form onSubmit={handleRegisterSubmit} className="space-y-3 sm:space-y-3.5">
+              <form onSubmit={handleRegisterSubmit} className="space-y-3">
                 
                 {/* Full Name */}
                 <div className="space-y-1">
                   <label
                     htmlFor="fullName"
-                    className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
+                    className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Full Name (as in NIC)
                   </label>
@@ -610,14 +610,14 @@ export default function LoginPage() {
                     }}
                     onBlur={() => handleBlur("fullName")}
                     className={cn(
-                      "w-full h-10.5 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all text-xs sm:text-sm disabled:opacity-60",
+                      "w-full h-[42px] px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all text-xs sm:text-sm disabled:opacity-60",
                       touched.fullName && fieldErrors.fullName
                         ? "border-rose-500 dark:border-rose-500 focus:border-rose-500"
                         : "border-slate-200 dark:border-zinc-800 focus:border-amber-500"
                     )}
                   />
                   {touched.fullName && fieldErrors.fullName && (
-                    <p className="text-[11px] text-rose-500 font-semibold pt-0.5">{fieldErrors.fullName}</p>
+                    <p className="text-[10.5px] text-rose-500 font-semibold pt-0.5">{fieldErrors.fullName}</p>
                   )}
                 </div>
 
@@ -625,7 +625,7 @@ export default function LoginPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="nic"
-                    className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
+                    className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     NIC Number
                   </label>
@@ -645,14 +645,14 @@ export default function LoginPage() {
                     }}
                     onBlur={() => handleBlur("nic")}
                     className={cn(
-                      "w-full h-10.5 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all text-xs sm:text-sm disabled:opacity-60",
+                      "w-full h-[42px] px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all text-xs sm:text-sm disabled:opacity-60",
                       touched.nic && fieldErrors.nic
                         ? "border-rose-500 dark:border-rose-500 focus:border-rose-500"
                         : "border-slate-200 dark:border-zinc-800 focus:border-amber-500"
                     )}
                   />
                   {touched.nic && fieldErrors.nic && (
-                    <p className="text-[11px] text-rose-500 font-semibold pt-0.5">{fieldErrors.nic}</p>
+                    <p className="text-[10.5px] text-rose-500 font-semibold pt-0.5">{fieldErrors.nic}</p>
                   )}
                 </div>
 
@@ -660,7 +660,7 @@ export default function LoginPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="register-email"
-                    className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
+                    className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Email Address
                   </label>
@@ -680,14 +680,14 @@ export default function LoginPage() {
                     }}
                     onBlur={() => handleBlur("email")}
                     className={cn(
-                      "w-full h-10.5 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all text-xs sm:text-sm disabled:opacity-60",
+                      "w-full h-[42px] px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all text-xs sm:text-sm disabled:opacity-60",
                       touched.email && fieldErrors.email
                         ? "border-rose-500 dark:border-rose-500 focus:border-rose-500"
                         : "border-slate-200 dark:border-zinc-800 focus:border-amber-500"
                     )}
                   />
                   {touched.email && fieldErrors.email && (
-                    <p className="text-[11px] text-rose-500 font-semibold pt-0.5">{fieldErrors.email}</p>
+                    <p className="text-[10.5px] text-rose-500 font-semibold pt-0.5">{fieldErrors.email}</p>
                   )}
                 </div>
 
@@ -695,7 +695,7 @@ export default function LoginPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="register-password"
-                    className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
+                    className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Password
                   </label>
@@ -721,20 +721,20 @@ export default function LoginPage() {
                     }}
                     onBlur={() => handleBlur("password")}
                     className={cn(
-                      "w-full h-10.5 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all text-xs sm:text-sm disabled:opacity-60",
+                      "w-full h-[42px] px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all text-xs sm:text-sm disabled:opacity-60",
                       touched.password && fieldErrors.password
                         ? "border-rose-500 dark:border-rose-500 focus:border-rose-500"
                         : "border-slate-200 dark:border-zinc-800 focus:border-amber-500"
                     )}
                   />
                   {touched.password && fieldErrors.password && (
-                    <p className="text-[11px] text-rose-500 font-semibold pt-0.5">{fieldErrors.password}</p>
+                    <p className="text-[10.5px] text-rose-500 font-semibold pt-0.5">{fieldErrors.password}</p>
                   )}
 
                   {/* Password Requirements Indicator */}
                   {password.length > 0 && (
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 pt-1.5 px-1">
-                      <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 pt-1 px-0.5">
+                      <div className="flex items-center gap-1 text-[9.5px] font-medium">
                         {hasMinLength ? (
                           <Check className="w-3 h-3 text-emerald-500 font-bold" />
                         ) : (
@@ -744,7 +744,7 @@ export default function LoginPage() {
                           8+ characters
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                      <div className="flex items-center gap-1 text-[9.5px] font-medium">
                         {hasUppercase ? (
                           <Check className="w-3 h-3 text-emerald-500 font-bold" />
                         ) : (
@@ -754,7 +754,7 @@ export default function LoginPage() {
                           1 Uppercase
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                      <div className="flex items-center gap-1 text-[9.5px] font-medium">
                         {hasLowercase ? (
                           <Check className="w-3 h-3 text-emerald-500 font-bold" />
                         ) : (
@@ -764,7 +764,7 @@ export default function LoginPage() {
                           1 Lowercase
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                      <div className="flex items-center gap-1 text-[9.5px] font-medium">
                         {hasNumberOrSymbol ? (
                           <Check className="w-3 h-3 text-emerald-500 font-bold" />
                         ) : (
@@ -782,7 +782,7 @@ export default function LoginPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="confirm-password"
-                    className="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
+                    className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider"
                   >
                     Confirm Password
                   </label>
@@ -805,24 +805,24 @@ export default function LoginPage() {
                     }}
                     onBlur={() => handleBlur("confirmPassword")}
                     className={cn(
-                      "w-full h-10.5 px-4 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all text-xs sm:text-sm disabled:opacity-60",
+                      "w-full h-[42px] px-3.5 rounded-xl bg-slate-100/80 dark:bg-zinc-900/50 border text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all text-xs sm:text-sm disabled:opacity-60",
                       touched.confirmPassword && fieldErrors.confirmPassword
                         ? "border-rose-500 dark:border-rose-500 focus:border-rose-500"
                         : "border-slate-200 dark:border-zinc-800 focus:border-amber-500"
                     )}
                   />
                   {touched.confirmPassword && fieldErrors.confirmPassword && (
-                    <p className="text-[11px] text-rose-500 font-semibold pt-0.5">{fieldErrors.confirmPassword}</p>
+                    <p className="text-[10.5px] text-rose-500 font-semibold pt-0.5">{fieldErrors.confirmPassword}</p>
                   )}
                 </div>
 
-                <div className="pt-1.5">
+                <div className="pt-1">
                   <HoverBorderGradient
                     as="button"
                     type="submit"
                     disabled={loading}
                     containerClassName="w-full"
-                    className="w-full bg-slate-900 dark:bg-zinc-900 text-white flex items-center justify-center gap-2 h-11 rounded-xl disabled:opacity-40 font-bold text-xs sm:text-sm"
+                    className="w-full bg-slate-900 dark:bg-zinc-900 text-white flex items-center justify-center gap-2 h-[42px] rounded-xl disabled:opacity-40 font-bold text-xs sm:text-sm"
                   >
                     {loading ? "Registering..." : "Create Account"}
                     {!loading && <ArrowRight className="w-4 h-4 text-amber-500" weight="bold" />}
