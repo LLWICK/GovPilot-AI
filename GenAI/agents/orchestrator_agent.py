@@ -15,25 +15,27 @@ from langchain_core.output_parsers import JsonOutputParser
 from utills.agent_routing import route_to_next_agent
 from utills.loggers import get_logger
 
+from langchain_core.messages import HumanMessage
+from config.llm_factory import get_llm
+
 load_dotenv()
 
 logger = get_logger("orchestrator_agent")
 
-llm = ChatGroq(model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"))
 
-def orchestrator_agent(state: GovPilotState)-> GovPilotState:
+def orchestrator_agent(state: GovPilotState) -> dict:
+    llm = get_llm(temperature=0.0)
 
-    logger.info("Starting Orchestrator for query: %s", state["messages"][-1].content)
-
-    user_query = state['messages'][-1].content
+    last_msg = state["messages"][-1]
+    user_query = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
+    logger.info("Starting Orchestrator for query: %s", user_query)
 
     if not state.get("parsed_intent"):
         chain = orchestrator_prompt | llm | JsonOutputParser()
-        intent = chain.invoke({"question":user_query})
+        intent = chain.invoke({"question": user_query})
 
         if intent.get("clarifications_needed"):
             question = intent["clarifications_needed"][0]
-            #translated_q = translate_to_language(question, language)
 
             citizen_answer = interrupt({"question": question})
 
@@ -42,7 +44,7 @@ def orchestrator_agent(state: GovPilotState)-> GovPilotState:
             intent = chain.invoke({"question": combined_query})
 
             return {
-                "messages": [combined_query],
+                "messages": [HumanMessage(content=combined_query)],
                 "parsed_intent": intent,
                 "next_agent": "web_discovery_agent",
             }

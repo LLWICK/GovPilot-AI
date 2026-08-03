@@ -21,18 +21,17 @@ from langchain_openrouter import ChatOpenRouter
 from data.agency_directory import FORM_DIRECTORY
 from utills.loggers import get_logger
 
+from config.llm_factory import get_llm
+
 load_dotenv()
 
 logger = get_logger("discovery_agent")
 
 
-
-llm = ChatGroq(model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"))
-
-
-async def discovery_agent(state: GovPilotState) -> GovPilotState:
+async def discovery_agent(state: GovPilotState) -> dict:
     logger.info("executing the web discovery agent.....")
     query = state["messages"][-1].content
+    llm = get_llm(temperature=0.2)
 
     directory_keys = "\n".join(f"- {k}" for k in FORM_DIRECTORY.keys())
     prompt = CLASSIFY_PROMPT.format(directory_keys=directory_keys, query=query)
@@ -42,7 +41,27 @@ async def discovery_agent(state: GovPilotState) -> GovPilotState:
     logger.info("Matched Service: %s", matched_key)
 
     if matched_key not in FORM_DIRECTORY:
-        logger.warning("Key not found !")
+        logger.info("Service not in curated directory. Executing Tier 2 search guidance...")
+        search_results = await search_government_site.ainvoke({"query": query})
+        
+        guidance_prompt = f"""You are GovPilot AI, an expert, helpful civic assistant for Sri Lankan citizens.
+A citizen asked the following question regarding a government procedure or service:
+"{query}"
+
+Here are relevant search results from official Sri Lankan government portals (.gov.lk):
+{search_results}
+
+Please provide a clear, step-by-step, comprehensive response explaining:
+1. What official agency handles this process (if known).
+2. Step-by-step instructions for completing the request.
+3. Essential documents typically required.
+4. Any relevant official website links from the search results above.
+
+Ensure your response is clear, polite, and well-structured."""
+
+        tier2_response = await llm.ainvoke([{"role": "user", "content": guidance_prompt}])
+        final_text = tier2_response.content
+
         return {
             "web_discovery_agent_output": DiscoveryResult(
                 status="not_found",
@@ -50,7 +69,8 @@ async def discovery_agent(state: GovPilotState) -> GovPilotState:
                 alternatives=[],
                 search_query_used=query,
             ),
-            "final_response":"Sorry, This service is still not implemented!"
+            "final_response": final_text,
+            "pipeline_complete": True,
         }
 
     entry = FORM_DIRECTORY[matched_key]
