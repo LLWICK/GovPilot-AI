@@ -25,7 +25,7 @@ load_dotenv()
 logger = get_logger("regulation_agent")
 
 llm = ChatGroq(
-    model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+    model="openai/gpt-oss-120b",
     temperature=0.0,
 )
 llm_tools = llm.bind_tools(RA_TOOLS)

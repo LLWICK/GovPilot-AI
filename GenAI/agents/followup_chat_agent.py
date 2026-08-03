@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = get_logger("followup_chat_agent")
-llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0, max_retries=1, timeout=25)
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0, max_retries=1, timeout=25)
 
 
 
