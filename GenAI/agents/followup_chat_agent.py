@@ -19,6 +19,9 @@ from config.llm_factory import get_llm
 load_dotenv()
 
 logger = get_logger("followup_chat_agent")
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0, max_retries=1, timeout=25)
+
+
 
 
 async def followup_chat_agent(state: GovPilotState) -> dict:

@@ -23,6 +23,8 @@ load_dotenv()
 
 logger = get_logger("guidance_agent")
 
+llm = ChatGroq(model="openai/gpt-oss-120b")
+
 async def guidance_agent(state: GovPilotState) -> dict:
     logger.info("executing the guidance agent.....")
     llm = get_llm(temperature=0.2)
