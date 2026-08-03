@@ -12,16 +12,21 @@ from states.agent_state import GovPilotState
 def route_to_next_agent(state: GovPilotState) -> dict:
     """Determines the next agent in the pipeline."""
     
-    if state.get("pipeline_complete") and state.get("Regulation_agent_output"):
+    if state.get("pipeline_complete"):
         return {"next_agent": "followup_chat_agent"}
 
     if not state.get("web_discovery_agent_output"):
         return {"next_agent": "web_discovery_agent"}
 
+    discovery = state.get("web_discovery_agent_output")
+    discovery_status = (
+        discovery.get("status") if isinstance(discovery, dict) else getattr(discovery, "status", None)
+    )
 
     if not state.get("Regulation_agent_output"):
-        if state['web_discovery_agent_output'].status == "not_found":
-            return {"next_agent": None, "final_response": state['final_response']}
+        if discovery_status == "not_found":
+            # Uncataloged query handled by web_discovery_agent fallback response
+            return {"next_agent": None, "final_response": state.get("final_response")}
             
         return {"next_agent": "regulation_agent"}
 
@@ -30,7 +35,7 @@ def route_to_next_agent(state: GovPilotState) -> dict:
         retrieval_status = (
             regulation.get("retrieval_status")
             if isinstance(regulation, dict)
-            else regulation.retrieval_status
+            else getattr(regulation, "retrieval_status", None)
         )
         if retrieval_status == "not_found":
             return {
@@ -51,8 +56,7 @@ def route_to_next_agent(state: GovPilotState) -> dict:
             }
         return {"next_agent": "guidance_agent"}
 
-    
-    return {"next_agent": None, "final_response": state['final_response']}
+    return {"next_agent": None, "final_response": state.get("final_response")}
 
     
     

@@ -14,6 +14,7 @@ from states.agent_state import GovPilotState
 from prompts.followup_agent_prompt import FOLLOWUP_PROMPT
 from utills.loggers import get_logger
 from dotenv import load_dotenv
+from config.llm_factory import get_llm
 
 load_dotenv()
 
@@ -25,14 +26,17 @@ llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0, max_retries=1, timeou
 
 async def followup_chat_agent(state: GovPilotState) -> dict:
     logger.info("Handling follow-up question")
-    ra = state.get("Regulation_agent_output", {})
-    question = state["messages"][-1].content
+    llm = get_llm(temperature=0.2, timeout=25)
+    ra = state.get("Regulation_agent_output", {}) or {}
+    
+    last_msg = state["messages"][-1]
+    question = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
 
     prompt = FOLLOWUP_PROMPT.format(
         agency=ra.get("discovered_agency", "the agency"),
-        regulations="\n".join(r["content"] for r in ra.get("regulations", [])) or "(none)",
-        required_docs="\n".join(f"- {d['doc_name']}" for d in ra.get("required_documents", [])) or "(none)",
-        fees=str(ra.get("fees", {})) or "(none)",
+        regulations="\n".join(r["content"] for r in ra.get("regulations", [])) if ra.get("regulations") else "(none)",
+        required_docs="\n".join(f"- {d['doc_name']}" for d in ra.get("required_documents", [])) if ra.get("required_documents") else "(none)",
+        fees=str(ra.get("fees", {})) if ra.get("fees") else "(none)",
         guidance_text=state.get("final_response", ""),
         source_url=ra.get("source_url", ""),
         question=question,

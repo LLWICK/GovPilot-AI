@@ -1,4 +1,3 @@
-from pyexpat import model
 import sys
 import os
 import json
@@ -8,7 +7,6 @@ parent_dir = os.path.dirname(current_dir)
 # Add the parent directory to the system path
 sys.path.append(parent_dir)
 
-from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from states.agent_state import GovPilotState
 from prompts.regulation_agent_prompt import RA_SYSTEM_PROMPT
@@ -17,8 +15,8 @@ from tools.playwright_tools import RA_TOOLS ,  bind_session
 from tools.browser_session import BrowserSession
 from states.Regulation_agent_structure import RAOutput
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_openrouter import ChatOpenRouter
 from utills.loggers import get_logger
+from config.llm_factory import get_llm
 
 load_dotenv()
 
@@ -33,6 +31,8 @@ llm_tools = llm.bind_tools(RA_TOOLS)
 
 async def regulation_agent(state: GovPilotState) -> dict:
     logger.info("Executing RA Agent.....")
+    llm = get_llm(temperature=0.0)
+    llm_tools = llm.bind_tools(RA_TOOLS)
     session = BrowserSession()
     bind_session(session)
     try:
@@ -96,8 +96,7 @@ async def regulation_agent(state: GovPilotState) -> dict:
             logger.error(f"RA parse failed: {e}\nRaw output: {final_text}")
             ra_output = RAOutput(retrieval_status="error", notes=str(e))
 
-        return {"Regulation_agent_output": ra_output.model_dump(),
-        "final_response": ra_output.model_dump()}
+        return {"Regulation_agent_output": ra_output.model_dump()}
 
     finally:
         await session.close()
