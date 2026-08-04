@@ -1,6 +1,8 @@
 import sys
 import os
 import json
+
+from langchain_groq import ChatGroq
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # Get the path to the parent directory (one level up)
 parent_dir = os.path.dirname(current_dir)
