@@ -78,25 +78,34 @@ def render_guidance_text(g: GuidanceOutput) -> str:
     if g.guidance_status == "failed":
         return f"I couldn't generate clear guidance for {g.agency_name or 'this service'}. {g.notes}".strip()
 
-    lines = [f"Here's how to apply through {g.agency_name}:\n"]
+    agency = g.agency_name.strip() if g.agency_name and g.agency_name.strip() and g.agency_name.strip().lower() != "not specified" else ""
+    header = f"Here's how to apply through {agency}:" if agency else "Here's how to apply:"
+
+    lines = [header]
     for step in g.steps:
-        lines.append(f"{step.step_number}. {step.title}: {step.instruction}\n")
+        step_title = step.title.strip() if step.title else ""
+        step_instruction = step.instruction.strip() if step.instruction else ""
+        if step_title and step_instruction and step_title.lower() != step_instruction.lower():
+            lines.append(f"{step.step_number}. **{step_title}**: {step_instruction}")
+        else:
+            lines.append(f"{step.step_number}. {step_instruction or step_title}")
 
     if g.documents_to_prepare:
-        lines.append("Documents to prepare:\n")
-        lines.extend(f"- {d}" for d in g.documents_to_prepare)
-        lines.append("")
+        valid_docs = [d for d in g.documents_to_prepare if d and d.strip()]
+        if valid_docs:
+            lines.append("\nDocuments to prepare:")
+            lines.extend(f"- {d}" for d in valid_docs)
 
     if g.form_links:
-        lines.append("Application form(s):\n")
-        lines.extend(f"- {url}" for url in g.form_links)
-        lines.append("")
+        valid_links = [url for url in g.form_links if url and url.strip() and "no direct form link" not in url.lower() and "not provided" not in url.lower()]
+        if valid_links:
+            lines.append("\nApplication form(s):")
+            lines.extend(f"- {url}" for url in valid_links)
 
-    if g.fees_summary:
-        lines.append(f"Fees: {g.fees_summary}")
+    if g.fees_summary and "no fee information" not in g.fees_summary.lower() and "not specified" not in g.fees_summary.lower():
+        lines.append(f"\nFees: {g.fees_summary}")
+
     if g.processing_time:
         lines.append(f"Processing time: {g.processing_time}")
-    if g.guidance_status == "partial" and g.notes:
-        lines.append(f"\nNote: {g.notes}")
 
-    return "\n".join(lines)
+    return "\n".join(lines).strip()

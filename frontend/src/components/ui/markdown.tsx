@@ -25,10 +25,10 @@ function extractLanguage(className?: string): string {
 }
 
 const INITIAL_COMPONENTS: Partial<Components> = {
-  p: ({ children }) => <p className="mb-3 leading-relaxed">{children}</p>,
-  ul: ({ children }) => <ul className="list-disc list-inside space-y-1.5 my-3 pl-1">{children}</ul>,
-  ol: ({ children }) => <ol className="list-decimal list-inside space-y-3 my-3 pl-1">{children}</ol>,
-  li: ({ children }) => <li className="my-1 font-medium text-slate-800 dark:text-zinc-200">{children}</li>,
+  p: ({ children }) => <p className="mb-2.5 leading-relaxed text-slate-800 dark:text-zinc-200">{children}</p>,
+  ul: ({ children }) => <ul className="list-disc list-outside space-y-1.5 my-2.5 ml-5">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal list-outside space-y-2.5 my-2.5 ml-5">{children}</ol>,
+  li: ({ children }) => <li className="font-medium text-slate-800 dark:text-zinc-200 leading-relaxed pl-1">{children}</li>,
   strong: ({ children }) => <strong className="font-bold text-slate-900 dark:text-white">{children}</strong>,
   a: ({ href, children }) => (
     <a
