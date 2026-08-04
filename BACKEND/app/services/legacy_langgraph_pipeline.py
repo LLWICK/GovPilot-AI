@@ -171,15 +171,35 @@ class LegacyLangGraphPipeline:
     ) -> AIResult:
         _ensure_playwright_compatible_event_loop()
         graph = await _runtime.get_graph()
-        result = await graph.ainvoke(
-            {
-                "messages": [message],
-                "session_id": str(session_id),
-                "language": language,
-            },
-            config={"configurable": {"thread_id": str(session_id)}},
-        )
-        return _parse_result(result)
+        try:
+            result = await graph.ainvoke(
+                {
+                    "messages": [message],
+                    "session_id": str(session_id),
+                    "language": language,
+                },
+                config={"configurable": {"thread_id": str(session_id)}},
+            )
+            return _parse_result(result)
+        except Exception as exc:
+            logger.error("AI pipeline execution failed for session %s: %s", session_id, exc)
+            if "429" in str(exc) or "rate_limit" in str(exc).lower():
+                return AIResult(
+                    status="completed",
+                    content=(
+                        "I'm sorry, our AI model service is currently experiencing high demand rate limits. "
+                        "Please wait a few moments and try your request again."
+                    ),
+                    cards=[],
+                )
+            return AIResult(
+                status="completed",
+                content=(
+                    "I encountered a temporary service error while processing your request. "
+                    "Please try again shortly."
+                ),
+                cards=[],
+            )
 
     async def resume(
         self,
@@ -189,8 +209,28 @@ class LegacyLangGraphPipeline:
     ) -> AIResult:
         _ensure_playwright_compatible_event_loop()
         graph = await _runtime.get_graph()
-        result = await graph.ainvoke(
-            Command(resume=answer),
-            config={"configurable": {"thread_id": str(session_id)}},
-        )
-        return _parse_result(result)
+        try:
+            result = await graph.ainvoke(
+                Command(resume=answer),
+                config={"configurable": {"thread_id": str(session_id)}},
+            )
+            return _parse_result(result)
+        except Exception as exc:
+            logger.error("AI pipeline resume failed for session %s: %s", session_id, exc)
+            if "429" in str(exc) or "rate_limit" in str(exc).lower():
+                return AIResult(
+                    status="completed",
+                    content=(
+                        "I'm sorry, our AI model service is currently experiencing high demand rate limits. "
+                        "Please wait a few moments and try your response again."
+                    ),
+                    cards=[],
+                )
+            return AIResult(
+                status="completed",
+                content=(
+                    "I encountered a temporary service error while resuming your session. "
+                    "Please try again shortly."
+                ),
+                cards=[],
+            )

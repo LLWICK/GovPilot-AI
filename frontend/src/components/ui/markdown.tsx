@@ -25,6 +25,21 @@ function extractLanguage(className?: string): string {
 }
 
 const INITIAL_COMPONENTS: Partial<Components> = {
+  p: ({ children }) => <p className="mb-3 leading-relaxed">{children}</p>,
+  ul: ({ children }) => <ul className="list-disc list-inside space-y-1.5 my-3 pl-1">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal list-inside space-y-3 my-3 pl-1">{children}</ol>,
+  li: ({ children }) => <li className="my-1 font-medium text-slate-800 dark:text-zinc-200">{children}</li>,
+  strong: ({ children }) => <strong className="font-bold text-slate-900 dark:text-white">{children}</strong>,
+  a: ({ href, children }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-amber-500 hover:underline font-semibold break-all"
+    >
+      {children}
+    </a>
+  ),
   code: function CodeComponent({ className, children, ...props }: React.ComponentProps<"code"> & { node?: any }) {
     const isInline =
       !props.node?.position?.start.line ||

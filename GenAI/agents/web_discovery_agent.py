@@ -8,7 +8,6 @@ sys.path.append(parent_dir)
 
 
 import asyncio
-from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from states.agent_state import GovPilotState
 from langchain.agents import create_agent
@@ -17,7 +16,6 @@ from prompts.web_discovery_prompt import DISCOVERY_SYSTEM_PROMPT, CLASSIFY_PROMP
 from states.web_discovery_structure import DiscoveryResult, DiscoveredPage
 
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_openrouter import ChatOpenRouter
 from data.agency_directory import FORM_DIRECTORY
 from utills.loggers import get_logger
 
@@ -44,20 +42,33 @@ async def discovery_agent(state: GovPilotState) -> dict:
         logger.info("Service not in curated directory. Executing Tier 2 search guidance...")
         search_results = await search_government_site.ainvoke({"query": query})
         
-        guidance_prompt = f"""You are GovPilot AI, an expert, helpful civic assistant for Sri Lankan citizens.
-A citizen asked the following question regarding a government procedure or service:
-"{query}"
+        guidance_prompt = f"""You are GovPilot AI, an expert civic assistant for Sri Lankan citizens.
+A citizen asked: "{query}"
 
 Here are relevant search results from official Sri Lankan government portals (.gov.lk):
 {search_results}
 
-Please provide a clear, step-by-step, comprehensive response explaining:
-1. What official agency handles this process (if known).
-2. Step-by-step instructions for completing the request.
-3. Essential documents typically required.
-4. Any relevant official website links from the search results above.
+Format your response in this EXACT clean structure (double spacing between numbered steps and bulleted sections):
 
-Ensure your response is clear, polite, and well-structured."""
+Here's how to apply through [Official Agency Name], Sri Lanka:
+
+1. [Step 1 Title]: [Detailed Instruction]
+
+2. [Step 2 Title]: [Detailed Instruction]
+
+3. [Step 3 Title]: [Detailed Instruction]
+
+Documents to prepare:
+
+- [Required Document 1]
+- [Required Document 2]
+
+Application form(s):
+
+- [Official URL if found in search results, otherwise omit this section]
+
+Fees: [Exact fee details or "No fee specified"]
+"""
 
         tier2_response = await llm.ainvoke([{"role": "user", "content": guidance_prompt}])
         final_text = tier2_response.content
@@ -86,16 +97,3 @@ Ensure your response is clear, polite, and well-structured."""
             search_query_used=query,
         )
     }
-
-
-
-
-
-
-
-    
-
-
-
-
- 

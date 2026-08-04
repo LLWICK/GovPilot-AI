@@ -223,10 +223,10 @@ export default function DashboardPage() {
                           <Link
                              href={`/documents/${session.sessionId}`}
                              className="inline-flex items-center justify-center h-11 px-4 border border-slate-300 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-800 active:scale-95 transition-all rounded-lg text-slate-700 dark:text-zinc-300 text-xs font-bold bg-white dark:bg-transparent shadow-sm dark:shadow-none"
-                             title="Upload Supporting Files"
+                             title="View Required Documents Checklist"
                           >
                              <FileText className="w-4 h-4" />
-                             <span className="ml-1.5 hidden sm:inline">Docs</span>
+                             <span className="ml-1.5 hidden sm:inline font-semibold">Checklist</span>
                           </Link>
                         </div>
                       </MagicCard>

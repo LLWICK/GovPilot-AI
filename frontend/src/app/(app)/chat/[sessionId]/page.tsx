@@ -407,18 +407,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
               className="w-full text-sm sm:text-base text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 min-h-[40px] max-h-[140px] py-1 px-2 border-none bg-transparent focus:outline-none resize-none"
             />
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800/60 mt-1.5 px-1">
-              <div className="flex items-center gap-2">
-                <PromptInputAction tooltip="Upload Supporting Files" side="top">
-                  <Link
-                    href={`/documents/${sessionId}`}
-                    className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white rounded-full transition-colors flex items-center justify-center"
-                  >
-                    <Paperclip className="w-4.5 h-4.5" weight="bold" />
-                  </Link>
-                </PromptInputAction>
-              </div>
-
+            <div className="flex items-center justify-end pt-2 border-t border-slate-100 dark:border-zinc-800/60 mt-1.5 px-1">
               <button
                 type="button"
                 onClick={() => handleSendMessage(inputText)}

@@ -36,28 +36,35 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const response = await fetch(`${BACKEND_URL}/auth/login`, {
-          method: "POST",
-          cache: "no-store",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-          }),
-        });
+        try {
+          const response = await fetch(`${BACKEND_URL}/auth/login`, {
+            method: "POST",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+          });
 
-        if (!response.ok) {
+          const contentType = response.headers.get("content-type") || "";
+          if (!response.ok || !contentType.includes("application/json")) {
+            console.error("Backend login failed or returned non-JSON response:", response.status, contentType);
+            return null;
+          }
+
+          const result = (await response.json()) as BackendAuthResponse;
+          return {
+            id: result.user.id,
+            name: result.user.name,
+            email: result.user.email,
+            accessToken: result.accessToken,
+            nic: result.user.nic ?? "",
+          };
+        } catch (err) {
+          console.error("Backend connection failed during login:", err);
           return null;
         }
-
-        const result = (await response.json()) as BackendAuthResponse;
-        return {
-          id: result.user.id,
-          name: result.user.name,
-          email: result.user.email,
-          accessToken: result.accessToken,
-          nic: result.user.nic ?? "",
-        };
       },
     }),
   ],
@@ -81,14 +88,15 @@ export const authOptions: NextAuthOptions = {
               google_id: account.providerAccountId,
             }),
           });
-          if (res.ok) {
+          const contentType = res.headers.get("content-type") || "";
+          if (res.ok && contentType.includes("application/json")) {
             const data = (await res.json()) as BackendAuthResponse;
             account.backendAccessToken = data.accessToken;
             account.backendUserId = data.user.id;
             account.backendNic = data.user.nic ?? "";
             return true;
           } else {
-            console.error("Backend Google Auth failed with status:", res.status);
+            console.error("Backend Google Auth failed or returned non-JSON:", res.status, contentType);
             return false;
           }
         } catch (err) {

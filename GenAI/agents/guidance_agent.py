@@ -80,18 +80,20 @@ def render_guidance_text(g: GuidanceOutput) -> str:
 
     lines = [f"Here's how to apply through {g.agency_name}:\n"]
     for step in g.steps:
-        lines.append(f"{step.step_number}. {step.title}: {step.instruction}")
+        lines.append(f"{step.step_number}. {step.title}: {step.instruction}\n")
 
     if g.documents_to_prepare:
-        lines.append("\nDocuments to prepare:")
+        lines.append("Documents to prepare:\n")
         lines.extend(f"- {d}" for d in g.documents_to_prepare)
+        lines.append("")
 
     if g.form_links:
-        lines.append("\nApplication form(s):")
+        lines.append("Application form(s):\n")
         lines.extend(f"- {url}" for url in g.form_links)
+        lines.append("")
 
     if g.fees_summary:
-        lines.append(f"\nFees: {g.fees_summary}")
+        lines.append(f"Fees: {g.fees_summary}")
     if g.processing_time:
         lines.append(f"Processing time: {g.processing_time}")
     if g.guidance_status == "partial" and g.notes:
