@@ -64,7 +64,7 @@ async def document_agent_node(state: dict) -> dict:
         text = extract_digital_text(doc_path)
         return {"manual_text_extracted": text}
 
-    pages = convert_from_path(doc_path, dpi=200, poppler_path=pop_path)
+    pages = convert_from_path(doc_path, dpi=120, poppler_path=pop_path)
     page1 = preprocess_page(pages[0])
 
     #schema_json = str(FormStructure.model_json_schema())
