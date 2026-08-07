@@ -25,7 +25,6 @@ def route_to_next_agent(state: GovPilotState) -> dict:
 
     if not state.get("Regulation_agent_output"):
         if discovery_status == "not_found":
-            # Uncataloged query handled by web_discovery_agent fallback response
             return {"next_agent": None, "final_response": state.get("final_response")}
             
         return {"next_agent": "regulation_agent"}
@@ -57,26 +56,3 @@ def route_to_next_agent(state: GovPilotState) -> dict:
         return {"next_agent": "guidance_agent"}
 
     return {"next_agent": None, "final_response": state.get("final_response")}
-
-    
-    
-    """ # Not eligible → stop and explain
-    if not state["eligibility"]["eligible"]:
-        response = compose_ineligibility_explanation(state)
-        return {"next_agent": None, "final_response": response}
-    
-    # Documents not validated yet → Document Agent
-    if state.get("uploaded_doc_paths") and not state.get("validation_results"):
-        return {"next_agent": "document_agent"}
-    
-    # No workflow plan yet → Workflow Agent
-    if not state.get("workflow_plan"):
-        return {"next_agent": "workflow_agent"}
-    
-    # Workflow exists, trigger notifications
-    if state.get("workflow_plan") and not state.get("notifications_sent"):
-        return {"next_agent": "notification_agent"}
-    
-    # All done — compose final guidance
-    response = compose_final_guidance(state)
-    return {"next_agent": None, "final_response": response} """

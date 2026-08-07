@@ -42,5 +42,14 @@ async def followup_chat_agent(state: GovPilotState) -> dict:
         question=question,
     )
 
-    response = await llm.ainvoke([{"role": "user", "content": prompt}])
-    return {"final_response": response.content}
+    try:
+        response = await llm.ainvoke([{"role": "user", "content": prompt}])
+        return {"final_response": response.content}
+    except Exception as exc:
+        logger.error("Followup chat agent failed: %s", exc)
+        return {
+            "final_response": (
+                "I'm sorry, our AI model service is currently experiencing high demand rate limits. "
+                "Please try your question again in a few minutes."
+            )
+        }

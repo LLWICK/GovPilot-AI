@@ -1,4 +1,3 @@
-import hashlib
 import uuid
 
 from sqlalchemy import select
@@ -50,36 +49,6 @@ class DocumentService:
             for name in sorted(required_names - existing)
         )
         await self.db.commit()
-
-    async def upload(
-        self,
-        *,
-        session_id: uuid.UUID,
-        document_id: uuid.UUID,
-        user_id: uuid.UUID,
-        file_name: str,
-        content_type: str,
-        content: bytes,
-    ) -> RequiredDocument:
-        await self._require_session(session_id, user_id)
-        document = await self.db.scalar(
-            select(RequiredDocument).where(
-                RequiredDocument.id == document_id,
-                RequiredDocument.session_id == session_id,
-            )
-        )
-        if document is None:
-            raise LookupError(document_id)
-
-        document.file_name = file_name
-        document.content_type = content_type
-        document.content = content
-        document.checksum_sha256 = hashlib.sha256(content).hexdigest()
-        document.status = "uploaded"
-        document.note = f"Uploaded as {file_name}. Awaiting backend verification."
-        await self.db.commit()
-        await self.db.refresh(document)
-        return document
 
     async def _require_session(self, session_id: uuid.UUID, user_id: uuid.UUID) -> CitizenSession:
         session = await self.db.scalar(

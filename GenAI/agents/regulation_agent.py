@@ -24,13 +24,6 @@ load_dotenv()
 
 logger = get_logger("regulation_agent")
 
-llm = ChatGroq(
-    model="openai/gpt-oss-120b",
-    temperature=0.0,
-)
-llm_tools = llm.bind_tools(RA_TOOLS)
-#llm = ChatOpenRouter(model = "openai/gpt-oss-20b:free")
-
 async def regulation_agent(state: GovPilotState) -> dict:
     logger.info("Executing RA Agent.....")
     llm = get_llm(temperature=0.0)
@@ -38,8 +31,6 @@ async def regulation_agent(state: GovPilotState) -> dict:
     session = BrowserSession()
     bind_session(session)
     try:
-        
-
         discovery = state.get("web_discovery_agent_output")
         if not discovery or not discovery.best_match:
             logger.warning("No discovery result available — RA cannot proceed")
@@ -55,13 +46,10 @@ async def regulation_agent(state: GovPilotState) -> dict:
         match = discovery.best_match
         citizen_query = state["messages"][-1].content
 
-        
-
         agent = create_agent(
             model=llm_tools,
             tools=RA_TOOLS,
             system_prompt=system_prompt,
-
         )
 
         task = f"""Navigate to the following government page and determine how the
@@ -76,33 +64,33 @@ async def regulation_agent(state: GovPilotState) -> dict:
                     requires login/registration."""
 
         logger.info("Target URL: %s | Agency: %s", match.url, match.agency_name)
-        result = await agent.ainvoke({
-            "messages": [{"role": "user", "content": task}]
-        })
-
-        final_text = result["messages"][-1].content
-
-        
-
         try:
+            result = await agent.ainvoke({
+                "messages": [{"role": "user", "content": task}]
+            })
+            final_text = result["messages"][-1].content
+
             try:
-                parsed = JsonOutputParser().parse(final_text)
-            except Exception:
-                json_start = final_text.find("{")
-                json_end = final_text.rfind("}")
-                if json_start < 0 or json_end <= json_start:
-                    raise
-                parsed = json.loads(final_text[json_start : json_end + 1])
-            ra_output = RAOutput.model_validate(parsed)
-        except Exception as e:
-            logger.error(f"RA parse failed: {e}\nRaw output: {final_text}")
-            ra_output = RAOutput(retrieval_status="error", notes=str(e))
+                try:
+                    parsed = JsonOutputParser().parse(final_text)
+                except Exception:
+                    json_start = final_text.find("{")
+                    json_end = final_text.rfind("}")
+                    if json_start < 0 or json_end <= json_start:
+                        raise
+                    parsed = json.loads(final_text[json_start : json_end + 1])
+                ra_output = RAOutput.model_validate(parsed)
+            except Exception as e:
+                logger.error(f"RA parse failed: {e}\nRaw output: {final_text}")
+                ra_output = RAOutput(retrieval_status="error", notes=str(e))
+        except Exception as exc:
+            logger.error("RA Agent execution failed (rate limit or network error): %s", exc)
+            ra_output = RAOutput(
+                retrieval_status="error",
+                notes=f"Service experienced a rate limit or API error: {exc}",
+            )
 
         return {"Regulation_agent_output": ra_output.model_dump()}
 
     finally:
         await session.close()
-
-
-
-    
