@@ -1,5 +1,6 @@
 from app.models.document import RequiredDocument
 from app.models.message import Message
+from app.models.otp import OTPCode
 from app.models.service import GovernmentService
 from app.models.session import CitizenSession
 from app.models.user import User
@@ -9,6 +10,7 @@ __all__ = [
     "CitizenSession",
     "GovernmentService",
     "Message",
+    "OTPCode",
     "RequiredDocument",
     "User",
     "WorkflowStep",
