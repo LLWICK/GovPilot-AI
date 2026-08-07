@@ -313,81 +313,91 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
           )}
 
           {/* Chat Message List */}
-          {chatHistory?.map((msg) => (
-            <div key={msg.id} className="w-full">
-              {msg.sender === "user" ? (
-                <div className="flex justify-end items-start gap-3 ml-auto max-w-[85%] sm:max-w-[75%]">
-                  <div className="bg-slate-200/90 dark:bg-zinc-800/90 backdrop-blur-sm text-slate-900 dark:text-zinc-100 rounded-3xl px-5 py-3.5 text-sm sm:text-base leading-relaxed font-normal shadow-sm border-0">
-                    {msg.text}
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-amber-600 dark:bg-amber-600 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold shadow-sm mt-0.5">
-                    <User className="w-4 h-4" weight="bold" />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex gap-4 items-start w-full">
-                  <div className="w-8 h-8 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
-                    <Bank className="w-4 h-4" weight="fill" />
-                  </div>
-                  <div className="space-y-4 flex-1 min-w-0 pt-0.5">
-                    <div className="text-slate-800 dark:text-zinc-200 text-sm sm:text-base leading-relaxed font-normal space-y-2">
-                      <MessageContent markdown={true} className="prose dark:prose-invert max-w-none">
-                        {msg.text}
-                      </MessageContent>
-                    </div>
+          {(() => {
+            const firstAgentMsgIndex = chatHistory?.findIndex((m) => m.sender === "agent");
+            const hasAgentMessage = firstAgentMsgIndex !== undefined && firstAgentMsgIndex !== -1;
 
-                    {msg.cards && msg.cards.length > 0 && (
-                      <div className="space-y-3 w-full pt-2">
-                        {msg.cards.map((card, idx) => (
-                          <StructuredCard
-                            key={idx}
-                            card={card}
-                            sessionId={sessionId}
-                            onConfirm={handleFinalConfirm}
-                          />
-                        ))}
+            return (
+              <>
+                {chatHistory?.map((msg, index) => (
+                  <div key={msg.id} className="w-full">
+                    {msg.sender === "user" ? (
+                      <div className="flex justify-end items-start gap-3 ml-auto max-w-[85%] sm:max-w-[75%]">
+                        <div className="bg-slate-200/90 dark:bg-zinc-800/90 backdrop-blur-sm text-slate-900 dark:text-zinc-100 rounded-3xl px-5 py-3.5 text-sm sm:text-base leading-relaxed font-normal shadow-sm border-0">
+                          {msg.text}
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-amber-600 dark:bg-amber-600 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold shadow-sm mt-0.5">
+                          <User className="w-4 h-4" weight="bold" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex gap-4 items-start w-full">
+                        <div className="w-8 h-8 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                          <Bank className="w-4 h-4" weight="fill" />
+                        </div>
+                        <div className="space-y-4 flex-1 min-w-0 pt-0.5">
+                          <div className="text-slate-800 dark:text-zinc-200 text-sm sm:text-base leading-relaxed font-normal space-y-2">
+                            <MessageContent markdown={true} className="prose dark:prose-invert max-w-none">
+                              {msg.text}
+                            </MessageContent>
+                          </div>
+
+                          {/* Only render structured cards for the initial agent response, not on follow-up replies */}
+                          {msg.cards && msg.cards.length > 0 && index === firstAgentMsgIndex && (
+                            <div className="space-y-3 w-full pt-2">
+                              {msg.cards.map((card, idx) => (
+                                <StructuredCard
+                                  key={idx}
+                                  card={card}
+                                  sessionId={sessionId}
+                                  onConfirm={handleFinalConfirm}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
+                ))}
 
-          {/* SSE Stream Active Response */}
-          {isStreaming && (
-            <div className="flex gap-4 items-start w-full animate-fade-in">
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-500 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm animate-pulse">
-                <Sparkle className="w-4.5 h-4.5" weight="fill" />
-              </div>
-              <div className="space-y-4 flex-1 min-w-0 pt-0.5">
-                <div className="text-slate-800 dark:text-zinc-200 text-sm sm:text-base leading-relaxed font-normal">
-                  {streamText === "" ? (
-                    <span className="text-slate-400 dark:text-zinc-500 italic animate-pulse">
-                      GovPilot AI is thinking...
-                    </span>
-                  ) : (
-                    <MessageContent markdown={true} className="prose dark:prose-invert max-w-none">
-                      {streamText}
-                    </MessageContent>
-                  )}
-                </div>
+                {/* SSE Stream Active Response */}
+                {isStreaming && (
+                  <div className="flex gap-4 items-start w-full animate-fade-in">
+                    <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-500 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm animate-pulse">
+                      <Sparkle className="w-4.5 h-4.5" weight="fill" />
+                    </div>
+                    <div className="space-y-4 flex-1 min-w-0 pt-0.5">
+                      <div className="text-slate-800 dark:text-zinc-200 text-sm sm:text-base leading-relaxed font-normal">
+                        {streamText === "" ? (
+                          <span className="text-slate-400 dark:text-zinc-500 italic animate-pulse">
+                            GovPilot AI is thinking...
+                          </span>
+                        ) : (
+                          <MessageContent markdown={true} className="prose dark:prose-invert max-w-none">
+                            {streamText}
+                          </MessageContent>
+                        )}
+                      </div>
 
-                {streamCards && (
-                  <div className="space-y-3 w-full pt-2">
-                    {streamCards.map((card, idx) => (
-                      <StructuredCard
-                        key={idx}
-                        card={card}
-                        sessionId={sessionId}
-                        onConfirm={handleFinalConfirm}
-                      />
-                    ))}
+                      {streamCards && streamCards.length > 0 && !hasAgentMessage && (
+                        <div className="space-y-3 w-full pt-2">
+                          {streamCards.map((card, idx) => (
+                            <StructuredCard
+                              key={idx}
+                              card={card}
+                              sessionId={sessionId}
+                              onConfirm={handleFinalConfirm}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-              </div>
-            </div>
-          )}
+              </>
+            );
+          })()}
 
           <div ref={messagesEndRef} />
         </div>
