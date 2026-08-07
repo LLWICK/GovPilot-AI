@@ -27,7 +27,6 @@ llm = ChatGroq(model="openai/gpt-oss-120b")
 
 async def guidance_agent(state: GovPilotState) -> dict:
     logger.info("executing the guidance agent.....")
-    llm = get_llm(temperature=0.2)
     ra_output = state["Regulation_agent_output"]
 
     manual_text = "(No separate guide document found — using page content and required documents below.)"

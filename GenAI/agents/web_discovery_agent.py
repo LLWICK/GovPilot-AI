@@ -6,7 +6,7 @@ parent_dir = os.path.dirname(current_dir)
 # Add the parent directory to the system path
 sys.path.append(parent_dir)
 
-
+from langchain_groq import ChatGroq
 import asyncio
 from dotenv import load_dotenv
 from states.agent_state import GovPilotState
@@ -24,12 +24,11 @@ from config.llm_factory import get_llm
 load_dotenv()
 
 logger = get_logger("discovery_agent")
-
+llm = ChatGroq(model="openai/gpt-oss-120b")
 
 async def discovery_agent(state: GovPilotState) -> dict:
     logger.info("executing the web discovery agent.....")
     query = state["messages"][-1].content
-    llm = get_llm(temperature=0.2)
 
     directory_keys = "\n".join(f"- {k}" for k in FORM_DIRECTORY.keys())
     prompt = CLASSIFY_PROMPT.format(directory_keys=directory_keys, query=query)

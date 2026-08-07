@@ -26,7 +26,6 @@ llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0, max_retries=1, timeou
 
 async def followup_chat_agent(state: GovPilotState) -> dict:
     logger.info("Handling follow-up question")
-    llm = get_llm(temperature=0.2, timeout=25)
     ra = state.get("Regulation_agent_output", {}) or {}
     
     last_msg = state["messages"][-1]

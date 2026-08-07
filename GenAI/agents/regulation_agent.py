@@ -23,10 +23,10 @@ from config.llm_factory import get_llm
 load_dotenv()
 
 logger = get_logger("regulation_agent")
+llm = ChatGroq(model="openai/gpt-oss-120b")
 
 async def regulation_agent(state: GovPilotState) -> dict:
     logger.info("Executing RA Agent.....")
-    llm = get_llm(temperature=0.0)
     llm_tools = llm.bind_tools(RA_TOOLS)
     session = BrowserSession()
     bind_session(session)
